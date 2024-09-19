@@ -1,4 +1,4 @@
-Team 1
+## Team 1
 
 Developing an auto trader
 - Get live data of stocks / crypto / etc…
