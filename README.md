@@ -1,12 +1,17 @@
-# Team Name
+Team 1
 
-Project description (~1 paragraph)
+Developing an auto trader
+- Get live data of stocks / crypto / etc…
+ - Track data over time
+ - Implement indicators
+ - Add algorithms that use the data
+
 
 ## Team Members and Roles
 
-* Member 1 (Role 1, Role 2)
-* Member 2 (Role 3, Role 4)
-* Member 3 (Role 5, Role 6)
+James McCarty
+Brendan Gross
+Daniel Lobenstein
 
 ## Prerequisites
 
