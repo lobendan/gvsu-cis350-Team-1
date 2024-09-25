@@ -1,7 +1,7 @@
 ## Team 1
 
 Developing an auto trader
-- Get live data of stocks / crypto / etc…
+ - Get live data of stocks / crypto / etc…
  - Track data over time
  - Implement indicators
  - Add algorithms that use the data
@@ -9,9 +9,9 @@ Developing an auto trader
 
 ## Team Members and Roles
 
-James McCarty
-Brendan Gross
-[Daniel Lobenstein](https://github.com/lobendan/CIS350-HW2-Lobenstein)
+ - James McCarty
+ - Brendan Gross
+ - [Daniel Lobenstein](https://github.com/lobendan/CIS350-HW2-Lobenstein)
 
 ## Prerequisites
 
