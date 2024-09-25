@@ -11,7 +11,7 @@ Developing an auto trader
 
 James McCarty
 Brendan Gross
-Daniel Lobenstein
+[Daniel Lobenstein](https://github.com/lobendan/CIS350-HW2-Lobenstein)
 
 ## Prerequisites
 
