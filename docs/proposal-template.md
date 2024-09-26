@@ -49,7 +49,7 @@ Create the Excel output.
          
 10/09/24 find ways to get data and start the overall outline of the project
 
-        from that point on estimate and split up work
+from that point on estimate and split up work
 
 
 (Figure out what your major milestones for this project will be, including how long you anticipate it *may* take to reach that point)
