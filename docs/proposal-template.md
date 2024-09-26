@@ -18,6 +18,13 @@ An optional feature would be to also test strategies by using old historical dat
 
 The program is designed to be a accessed using a desktop app as a simple but useful GUI.
 
+FEATURES:
+    -Simple GUI
+    -Collect trading data
+    -Analyze the data
+    -Create trading strategies form data
+    -Suggest trades / auto trade based on strategies
+
 REMOVE THE FOLLOWING WHEN FINISHING UP:
 (In 2-4 paragraphs, describe your project concept)
 (Also define some loosely defined features of your project using bullet points)
