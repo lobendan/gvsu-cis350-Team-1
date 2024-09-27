@@ -10,7 +10,7 @@ Developing an auto trader
 ## Team Members and Roles
 
  - [James Pierce McCarty](https://github.com/pieerce/CIS350-HW2-McCarty.git)
- - Brendan Gross
+ - [Brendan Gross](https://github.com/GSmithy144/CIS350-HW2-Gross)
  - [Daniel Lobenstein](https://github.com/lobendan/CIS350-HW2-Lobenstein)
 
 ## Prerequisites
