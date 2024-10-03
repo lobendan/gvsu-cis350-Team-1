@@ -7,6 +7,8 @@ Developing an auto trader
  - Add algorithms that use the data
 
 
+[Trello](https://trello.com/b/sA5ffmh7/gvsu-cis350-team-1)
+
 ## Team Members and Roles
 
  - [James Pierce McCarty](https://github.com/pieerce/CIS350-HW2-McCarty.git)
