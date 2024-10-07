@@ -9,7 +9,7 @@ API_SECRET = input("Enter your Binance API Secret: ")
 client = Client(API_KEY, API_SECRET, tld='us')
 
 # Get the cryptocurrency pair to track
-symbol = 'BTCUSDT'
+symbol = 'BTCUSDC'
 try:
     # Continuously fetch the price every second
     while True:
