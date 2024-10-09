@@ -17,4 +17,13 @@ __Taapi API__
  - probably have to implement some indicators ourselves 
  - import and export strategies
 
+
+ # TODO / random ideas
+
+ - create GUI in FIGMA or similar software
+ - research on how to integrate the system into the GUI (define interfaces)
+ - strategy creator (better interface that doesn't require coding knowledge)
+ - add safety feature when buying / selling (manual activation when buying with more than X% of account funds)
+  
+
   
