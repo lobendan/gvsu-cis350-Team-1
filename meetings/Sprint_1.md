@@ -38,3 +38,11 @@
 
 ### Agenda:
 - Review sprint progress and outcomes
+
+
+## Day 7: Sprint Retrospective
+**Participants:** Brendan, Pierce, Daniel
+ - successfully found API
+ - got some information ready about some indicators
+ - found python library to create the visual application with
+ - overall successful sprint 
