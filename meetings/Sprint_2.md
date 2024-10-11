@@ -1,11 +1,14 @@
 # Sprint Plan 1
 
-**Duration:** 1 week (10/3 - 10/10)
+**Duration:** 1 week (10/10 - 17/10)
 
 **Sprint Goal:**
-- Get API set up
-- Create prototype of GUI
-- Look into indicators
+- Create first strategies and verify that the idea is working
+- Create prototype of GUI in FIGMA
+- update Trello to Agile one
+- create tutorials on how to get API keys
+- create pip list
+
 
 ---
 
@@ -42,7 +45,4 @@
 
 ## Day 7: Sprint Retrospective
 **Participants:** Brendan, Pierce, Daniel
- - successfully found API
- - got some information ready about some indicators
- - found python library to create the visual application with (was planned differently but ended up making more sense)
- - overall successful sprint 
+
