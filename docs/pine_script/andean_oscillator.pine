@@ -1,11 +1,11 @@
 //@version=5
 indicator("Andean Oscillator", overlay=true)
 // Settings
-length     = input(50)
+lengthAnd     = input(50)
 sig_length = input(9,'Signal Length')
 
 // Exponential Envelopes
-var alpha = 2 / (length + 1)
+var alpha = 2 / (lengthAnd + 1)
 var up1 = 0., var up2 = 0.
 var dn1 = 0., var dn2 = 0.
 C = close

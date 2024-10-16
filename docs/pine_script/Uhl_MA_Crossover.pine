@@ -3,11 +3,11 @@
 
 //@version=4
 study("Uhl MA Crossover System","UHLMA",true)
-length = input(500),mult = input(2.),src = input(close)
+lengthUhl = input(500),mult = input(2.),src = input(close)
 //----
 out = 0., cma = 0., cts = 0.
-Var = variance(src,length)*mult
-sma = sma(src,length)
+Var = variance(src,lengthUhl)*mult
+sma = sma(src,lengthUhl)
 //----
 secma = pow(nz(sma - cma[1]),2) 
 sects = pow(nz(src - cts[1]),2) 
