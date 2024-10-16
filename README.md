@@ -7,7 +7,7 @@ Developing an auto trader
  - Add algorithms that use the data
 
 
-[Trello](https://trello.com/b/sA5ffmh7/gvsu-cis350-team-1)
+[Trello](https://trello.com/b/0UfcR0VN/gvsu-cis350-team-1)
 
 ## Team Members and Roles
 
