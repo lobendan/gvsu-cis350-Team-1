@@ -46,12 +46,8 @@ Create the Excel output.
 
 # Estimated Timeline
 
-10/02/24 get Github and VS code setup so everyone can use it without problems
-         write project proposal
-         
-10/09/24 find ways to get data and start the overall outline of the project
-
-from that point on estimate and split up work
+Timeline is documented using a Gantt chart. 
+Go to [OnlineGantt](https://www.onlinegantt.com/#/gantt) and import the gantt document found at docs\Gantt_chart.gantt
 
 
 (Figure out what your major milestones for this project will be, including how long you anticipate it *may* take to reach that point)
