@@ -1,5 +1,7 @@
  # IDEAS
 
+- 
+
  # APIs
 __Binance API__
  - their Rest APi updates slowly - not fitting for getting live data

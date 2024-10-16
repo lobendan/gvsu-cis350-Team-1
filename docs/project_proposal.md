@@ -30,6 +30,8 @@ FEATURES:
 
 # Anticipated Technologies
 
+UPDATE
+
 Use APIs and/or webscrapers to get the data.
 Technologies to create the desktop APP (GUI). 
 Use openpyxl or similar module to create the Excel files.

@@ -8,6 +8,7 @@ __TAAPI.IO__
   4. checkout using your email address
   5. the API key will be sent to the email address you have entered
   6. copy the API key and paste it into the "secret" parameter in the payload object
+___
 
 __Binance API__
 
