@@ -109,7 +109,7 @@ class strategy:
 strat = strategy()
 
 #create new log file or show that 
-with open("trade_log.csv", mode="w", newline="") as file:   #use "w" to delete previous log file, use "a" to append into existing file 
+with open("trade_log.csv", mode="a", newline="") as file:   #use "w" to delete previous log file, use "a" to append into existing file 
         writer = csv.writer(file)
         writer.writerow(["action", "price", "short sma", "long sma", "total profit"])
 while True:
