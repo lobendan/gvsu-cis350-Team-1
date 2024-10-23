@@ -1,0 +1,21 @@
+## Meeting 6
+
+Team name: Team 1
+
+Members present: Daniel Lobenstein, Pierce McCarty, Brendan Gross
+
+Date: 10/23/2024
+
+Time: 10:15-10:45AM
+
+Discussion points: 
+
+* Talked about a potential login screen for the API keys. Specify that the information is not shared and only stored locally (that is our plan for now)
+* Discussed the strategies and our plan for initiating different indicators. Something like a menu where the user can select the stock they want to buy or sell and the indicator(s) that will trigger it
+* Looked at the presentation feedback we received and discussed some changes and modifications that can be made to the system
+
+Goals for next week (include responsibilities)
+
+* Add smaller tasks to the trello board, tasks that will take max 6-8 hours.
+* Start working on the front end UI elements based on the mockup that brendan has been playing around with
+* Add the initiation screen for the user where the API key will be accepted if it is valid and the user will be sent to the main page with the stock information and other tools
