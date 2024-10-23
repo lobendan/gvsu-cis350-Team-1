@@ -67,12 +67,14 @@ class strategy:
             log_trade("Open Long Trade", price, short_sma, long_sma, self.total_profit)
             self.active_trades_amnt=+1
             self.opened_trade_type="long"
+            self.opened_trade_price = price
         
         #open short trade
         elif self.current_higher == "long" and self.last_higher == "short" and self.active_trades_amnt < self.parallel_trades_amnt:
             log_trade("Open Short Trade", price, short_sma, long_sma, self.total_profit)
             self.active_trades_amnt=+1
             self.opened_trade_type="short"
+            self.opened_trade_price = price
 
         #close long (TP)
         elif self.active_trades_amnt > 0 and self.opened_trade_type=="long" and price>=self.opened_trade_price+self.take_profit:
@@ -107,7 +109,7 @@ class strategy:
 strat = strategy()
 
 #create new log file or show that 
-with open("trade_log.csv", mode="a", newline="") as file:   #use "w" to delete previous log file, use "a" to append into existing file 
+with open("trade_log.csv", mode="w", newline="") as file:   #use "w" to delete previous log file, use "a" to append into existing file 
         writer = csv.writer(file)
         writer.writerow(["action", "price", "short sma", "long sma", "total profit"])
 while True:
