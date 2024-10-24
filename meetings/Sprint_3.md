@@ -9,6 +9,7 @@
  - be able to start autotrader in GUI (Pierce / Brendan)
  - add pip list (Daniel)
  - integrate auto trader into Binance testnet (Daniel)
+ - add goal priorities (Daniel)
 
 
 ---
