@@ -1,13 +1,14 @@
 # Sprint Plan 1
 
-**Duration:** 1 week (10/10 - 10/24)
+**Duration:** 1 week (10/24 - 11/7)
 
 **Sprint Goal:**
-- Create first strategies and verify that the idea is working
-- Create prototype of GUI in FIGMA
-- update Trello to Agile one
-- create tutorials on how to get API keys
-- create pip list
+ - improve Gantt chart (Pierce)
+ - create working API screen in python (Pierce / Brendan)
+ - create visualization screen using CSV file (Pierce / Brendan)
+ - be able to start autotrader in GUI (Pierce / Brendan)
+ - add pip list (Daniel)
+ - integrate auto trader into Binance testnet (Daniel)
 
 
 ---
