@@ -41,12 +41,9 @@
 **Participants:** Brendan, Pierce, Daniel
 
 ### Agenda:
-- Crucial progress made through creating first working paper trading strategy
-- No crucial progress done on the UI side
+
 
 
 ## Day 14: Sprint Retrospective
 **Participants:** Brendan, Pierce, Daniel
- - more progress on UI is needed
- - more documenting needs to be done
- - more testing needs to be done on the progress that has been made
+
