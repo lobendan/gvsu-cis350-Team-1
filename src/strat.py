@@ -1,10 +1,12 @@
 import csv
 from strat_start import IndicatorManager
 import time
+from plyer import notification
+
 
 # Function to log data into a CSV file
 def log_trade(action, price, short_sma, long_sma, total_profit):
-    with open("trade_log.csv", mode="a", newline="") as file:
+    with open("src/trade_log.csv", mode="a", newline="") as file:
         writer = csv.writer(file)
         writer.writerow([action, price, short_sma, long_sma, total_profit])
 
@@ -16,6 +18,7 @@ class PriceDataProvider:
         self.short_sma = None
         self.long_sma = None
         self.live_data = IndicatorManager()
+        
     
     def get_price_and_sma(self):
         # self.live_data.display_data
@@ -32,10 +35,13 @@ class strategy:
         self.opened_trade_price=0
         self.opened_trade_type=""
         self.total_profit = 0
+        
+        #used to toggle desktop notifications
+        self.desktop_notification=True
 
         # Stop loss and take profit levels (configurable)
-        self.stop_loss = 25  # in $
-        self.take_profit = 50  # in $
+        self.stop_loss = 50  # in $
+        self.take_profit = 100  # in $
 
         # Initialize the price data provider
         self.price_data_provider = PriceDataProvider()
@@ -68,6 +74,8 @@ class strategy:
             self.active_trades_amnt=+1
             self.opened_trade_type="long"
             self.opened_trade_price = price
+            self.notify("long", "opened")
+            
         
         #open short trade
         elif self.current_higher == "long" and self.last_higher == "short" and self.active_trades_amnt < self.parallel_trades_amnt:
@@ -75,41 +83,54 @@ class strategy:
             self.active_trades_amnt=+1
             self.opened_trade_type="short"
             self.opened_trade_price = price
+            self.notify("short", "opened")
 
         #close long (TP)
         elif self.active_trades_amnt > 0 and self.opened_trade_type=="long" and price>=self.opened_trade_price+self.take_profit:
             self.total_profit = self.total_profit - self.opened_trade_price + price
             log_trade("Close Long Trade (TP)", price, short_sma, long_sma, self.total_profit)
             self.active_trades_amnt=-1
+            self.notify("long", "closed")
+            
 
         #close long (SL)
         elif self.active_trades_amnt > 0 and self.opened_trade_type=="long" and price<=self.opened_trade_price-self.stop_loss:
             self.total_profit = self.total_profit - self.opened_trade_price + price
             log_trade("Close Long Trade (SL)", price, short_sma, long_sma, self.total_profit)
             self.active_trades_amnt=-1
+            self.notify("long", "closed")
 
         #close short (TP)
         elif self.active_trades_amnt > 0 and self.opened_trade_type=="short" and price<=self.opened_trade_price-self.take_profit:
             self.total_profit = self.total_profit + self.opened_trade_price - price
             log_trade("Close Short Trade (TP)", price, short_sma, long_sma, self.total_profit)
             self.active_trades_amnt=-1
+            self.notify("short", "closed")
 
         #close short (SL)
         elif self.active_trades_amnt > 0 and self.opened_trade_type=="short" and price>=self.opened_trade_price+self.stop_loss:
             self.total_profit = self.total_profit + self.opened_trade_price - price
             log_trade("Close Short Trade (SL)", price, short_sma, long_sma, self.total_profit)
             self.active_trades_amnt=-1
+            self.notify("short", "closed")
 
         else: 
             log_trade("None", price, short_sma, long_sma, self.total_profit)
 
+    def notify(self, longshort, openclose):
+        if self.desktop_notification==True:
+            notification.notify(
+                title='AutoTrader',
+                message=f'A {longshort} position has been {openclose}!',
+                app_name='My App',
+                timeout=5  # Duration in seconds
+            )
 
-# Main loop or function to call `process_data` regularly, 
-# e.g., within a live trading system or data stream loop
+#Main
 strat = strategy()
 
 #create new log file or show that 
-with open("trade_log.csv", mode="a", newline="") as file:   #use "w" to delete previous log file, use "a" to append into existing file 
+with open("src/trade_log.csv", mode="a", newline="") as file:   #use "w" to delete previous log file, use "a" to append into existing file 
         writer = csv.writer(file)
         writer.writerow(["action", "price", "short sma", "long sma", "total profit"])
 while True:
