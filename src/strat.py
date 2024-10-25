@@ -79,7 +79,7 @@ class strategy:
             self.active_trades_amnt=+1
             self.opened_trade_type="long"
             self.opened_trade_price = price
-            self.notify("long", "opened")
+            self.notify("long", "opened", 0)
             
         
         #open short trade
@@ -88,7 +88,7 @@ class strategy:
             self.active_trades_amnt=+1
             self.opened_trade_type="short"
             self.opened_trade_price = price
-            self.notify("short", "opened")
+            self.notify("short", "opened", 0)
 
         #close long (TP)
         elif self.active_trades_amnt > 0 and self.opened_trade_type=="long" and price>=self.opened_trade_price+self.take_profit:
@@ -135,6 +135,9 @@ class strategy:
     def notify(self, longshort, openclose, profit):
         if(profit > 0):
             message = f"A profit of {profit} dollars has been generated"
+
+        elif(profit == 0):
+            message = "You will be notified once the position is closed"
 
 
         else:
