@@ -133,6 +133,8 @@ class strategy:
 
 
     def notify(self, longshort, openclose, profit):
+        profit = round(profit, 2) #round the profit to 2 decimals
+        
         if(profit > 0):
             message = f"A profit of {profit} dollars has been generated"
 
@@ -141,7 +143,7 @@ class strategy:
 
 
         else:
-            message = f"A loss of {profit} dollars has been generated"
+            message = f"A loss of {-profit} dollars has been generated"
         
         if self.desktop_notification:
             toast = Notification(
