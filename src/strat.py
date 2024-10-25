@@ -1,14 +1,16 @@
 import csv
 from strat_start import IndicatorManager
 import time
-from plyer import notification
-
+from winotify import Notification, audio
+from datetime import datetime
+from pathlib import Path
 
 # Function to log data into a CSV file
-def log_trade(action, price, short_sma, long_sma, total_profit):
+def log_trade(action, price, short_sma, long_sma, current_profit, total_profit):
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     with open("src/trade_log.csv", mode="a", newline="") as file:
         writer = csv.writer(file)
-        writer.writerow([action, price, short_sma, long_sma, total_profit])
+        writer.writerow([timestamp, action, price, short_sma, long_sma, current_profit, total_profit])
 
 # Simulated function for receiving SMA values from an external class
 # You would replace this class with the actual class or data source you're using
@@ -38,6 +40,7 @@ class strategy:
         
         #used to toggle desktop notifications
         self.desktop_notification=True
+        self.icon_path = Path(__file__).parent  / 'logo.ico'  #make sure that the logo file is in the same directory as this file
 
         # Stop loss and take profit levels (configurable)
         self.stop_loss = 50  # in $
@@ -67,10 +70,12 @@ class strategy:
         elif short_sma < long_sma: 
             self.last_higher=self.current_higher
             self.current_higher = "long"
+        
+        
 
         #open long trade
         if self.current_higher == "short" and self.last_higher == "long" and self.active_trades_amnt < self.parallel_trades_amnt:
-            log_trade("Open Long Trade", price, short_sma, long_sma, self.total_profit)
+            log_trade("Open Long Trade", price, short_sma, long_sma, 0, self.total_profit)
             self.active_trades_amnt=+1
             self.opened_trade_type="long"
             self.opened_trade_price = price
@@ -79,7 +84,7 @@ class strategy:
         
         #open short trade
         elif self.current_higher == "long" and self.last_higher == "short" and self.active_trades_amnt < self.parallel_trades_amnt:
-            log_trade("Open Short Trade", price, short_sma, long_sma, self.total_profit)
+            log_trade("Open Short Trade", price, short_sma, long_sma, 0, self.total_profit)
             self.active_trades_amnt=+1
             self.opened_trade_type="short"
             self.opened_trade_price = price
@@ -88,51 +93,69 @@ class strategy:
         #close long (TP)
         elif self.active_trades_amnt > 0 and self.opened_trade_type=="long" and price>=self.opened_trade_price+self.take_profit:
             self.total_profit = self.total_profit - self.opened_trade_price + price
-            log_trade("Close Long Trade (TP)", price, short_sma, long_sma, self.total_profit)
+            log_trade("Close Long Trade (TP)", price, short_sma, long_sma, price - self.opened_trade_price, self.total_profit)
             self.active_trades_amnt=-1
-            self.notify("long", "closed")
+            self.notify("long", "closed", price - self.opened_trade_price)
             
 
         #close long (SL)
         elif self.active_trades_amnt > 0 and self.opened_trade_type=="long" and price<=self.opened_trade_price-self.stop_loss:
             self.total_profit = self.total_profit - self.opened_trade_price + price
-            log_trade("Close Long Trade (SL)", price, short_sma, long_sma, self.total_profit)
+            log_trade("Close Long Trade (SL)", price, short_sma, long_sma, price - self.opened_trade_price, self.total_profit)
             self.active_trades_amnt=-1
-            self.notify("long", "closed")
+            self.notify("long", "closed", price - self.opened_trade_price)
 
         #close short (TP)
         elif self.active_trades_amnt > 0 and self.opened_trade_type=="short" and price<=self.opened_trade_price-self.take_profit:
             self.total_profit = self.total_profit + self.opened_trade_price - price
-            log_trade("Close Short Trade (TP)", price, short_sma, long_sma, self.total_profit)
+            log_trade("Close Short Trade (TP)", price, short_sma, long_sma, self.opened_trade_price - price, self.total_profit)
             self.active_trades_amnt=-1
-            self.notify("short", "closed")
+            self.notify("short", "closed", self.opened_trade_price - price)
 
         #close short (SL)
         elif self.active_trades_amnt > 0 and self.opened_trade_type=="short" and price>=self.opened_trade_price+self.stop_loss:
             self.total_profit = self.total_profit + self.opened_trade_price - price
-            log_trade("Close Short Trade (SL)", price, short_sma, long_sma, self.total_profit)
+            log_trade("Close Short Trade (SL)", price, short_sma, long_sma, self.opened_trade_price - price, self.total_profit)
             self.active_trades_amnt=-1
-            self.notify("short", "closed")
+            self.notify("short", "closed", self.opened_trade_price - price)
 
+        #current status if no trade is opened or closed in that iteration
         else: 
-            log_trade("None", price, short_sma, long_sma, self.total_profit)
+            if self.active_trades_amnt > 0 and self.opened_trade_type=="long":
+                log_trade("active", price, short_sma, long_sma, price - self.opened_trade_price, self.total_profit)
+            
+            elif self.active_trades_amnt > 0 and self.opened_trade_type=="short":
+                log_trade("active", price, short_sma, long_sma, self.opened_trade_price - price, self.total_profit)
+            
+            else:
+                log_trade("idle", price, short_sma, long_sma, "-", self.total_profit)
 
-    def notify(self, longshort, openclose):
-        if self.desktop_notification==True:
-            notification.notify(
-                title='AutoTrader',
-                message=f'A {longshort} position has been {openclose}!',
-                app_name='My App',
-                timeout=5  # Duration in seconds
+
+
+    def notify(self, longshort, openclose, profit):
+        if(profit > 0):
+            message = f"A profit of {profit} dollars has been generated"
+
+
+        else:
+            message = f"A loss of {profit} dollars has been generated"
+        
+        if self.desktop_notification:
+            toast = Notification(
+                app_id="AutoTrader App",
+                title=f'A {longshort} position has been {openclose}!',
+                msg=message,
+                icon=self.icon_path  # Absolute path to icon
             )
-
+            toast.set_audio(audio.LoopingAlarm3, loop=False)
+            toast.show()
 #Main
 strat = strategy()
 
 #create new log file or show that 
 with open("src/trade_log.csv", mode="a", newline="") as file:   #use "w" to delete previous log file, use "a" to append into existing file 
         writer = csv.writer(file)
-        writer.writerow(["action", "price", "short sma", "long sma", "total profit"])
+        writer.writerow(["timestamp", "status", "price", "short sma", "long sma", "profit since opening trade", "total profit"])
 while True:
     strat.process_data()
     time.sleep(15)
