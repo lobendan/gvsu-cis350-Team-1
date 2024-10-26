@@ -4,7 +4,6 @@
 
 import requests
 import json
-import time
 from dataclasses import dataclass
 
 TAurl = "https://api.taapi.io/bulk"
