@@ -22,11 +22,12 @@ The results should be output in a generated Excel file.
 
 
 FEATURES:
-    -Simple GUI
-    -Collect trading data
-    -Analyze the data
-    -Create trading strategies form data
-    -Suggest trades / auto trade based on strategies
+    -Simple GUI (Desirable)
+    -Collect trading data (Essential)
+    -Analyze the data (Desirable)
+    -Create trading strategies from data (Essential)
+    -Suggest trades / auto trade based on strategies (Essential)
+    -Automatically open and close real trades on exchanges (Optional)
 
 # Anticipated Technologies
 
