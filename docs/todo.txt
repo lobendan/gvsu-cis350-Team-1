@@ -1,6 +1,2 @@
 TODOS:
--implement new notifications into actual program
-        - maybe create new final logo (https://convertico.com/)
-        - show profit or loss when trade is closed
--make sure the new csv creator works fine
--check sprint plan for more todos
+- add manual opening and closing trades
