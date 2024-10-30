@@ -1,0 +1,22 @@
+## Meeting 6
+
+Team name: Team 1
+
+Members present: Daniel Lobenstein, Pierce McCarty, Brendan Gross
+
+Date: 10/30/2024
+
+Time: 10:15-10:45AM
+
+Discussion points: 
+
+* Discussed progress made on the strategies, we can run the strategy and the trades will be placed based on the live data and strategy.
+* Talked about the progress made on the GUI, we had a graph that shows the SMA Indicator within our program.
+* The potential issues with strategies and making sure people who are not familiar with python can still make and use custom strategies.
+
+Goals for next week (include responsibilities)
+
+* Update README and others, more documentation, make everything in the file system more organized (Pierce)
+* Decide where we want to go from here with the strategies so that we can try our best to make them universal. Continue working with back end (Daniel)
+* Continue working on the GUI and implementing more of our requirements within the GUI and program itself (Brendan)
+* 

@@ -6,16 +6,18 @@ This document will be a collection of features, described in detail by functiona
 # Functional Requirements
 
 **Get live data**
-- the programshall request live data using APIs
+- the program shall request live data using APIs
 
 **create analysis**
 - the system shall save historical trading data permanently
 
 **strategy creation**
-- the system shall give the user the oportunity to add, edit, and delete strategies
+- the system shall give the user the opportunity to add, edit, and delete strategies
 
 **User Interface**
 -the program shall be accessed using a desktop application
+-the program shall allow the user to place trades manually
+-the user shall be able to see what assets they currently have
 
 ___
 
@@ -26,9 +28,9 @@ ___
 - the data shall be accurate to the live data shown on Trading View
 - the data shall update in a matter of a few seconds
 
-
 **Create analysis**
-- to system shall display statistics like percentage of successfull trades, profit factor, maximum drawdown to the user
+- the system shall display statistics like percentage of successful trades, profit factor, maximum drawdown to the user
+- the system shall allow the user to decide how they want this information displayed (graphs, charts, etc)
 
 **strategy creation**
 - the user shall be able to create python code as strategies having access to the indicators in python
@@ -40,4 +42,8 @@ ___
 **User Interface**
 - the UI shall use line graphs to show price and net worth data
 - the UI shall show active trades showing price change percentage, the amount of money in the position, current profit/loss of the position
+- the UI shall allow the user to decide how much of an asset they want to purchase or sell
+- the UI shall allow the user to bookmark or favorite different assets for convenient viewing
+
+
   
