@@ -17,11 +17,17 @@
    - Responsible: Daniel
   
    __Notifications__
-    - notify the user when a trade has been opened and closed
-    - Timeframe: 1 week (complete)
-    - Responsible: Daniel
+   - notify the user when a trade has been opened and closed
+   - Timeframe: 1 week (complete)
+   - Responsible: Daniel
 
    __Live Graphical Interface__
-   -Create a display that accurately depicts the live information in a visually pleasing way that is easy to understand.
-   -Timeframe: 2 weeks (complete)
-   -Responsible: Brendan
+   - Create a display that accurately depicts the live information in a visually pleasing way that is easy to understand.
+   - Timeframe: 2 weeks (complete)
+   - Responsible: Brendan
+
+   __Early Documentation__
+   - Documenting early aspects of the project, getting information on indicators, api, ect.
+   - Timeframe: 2 weeks (Complete)
+   - Responsible: Everyone
+
