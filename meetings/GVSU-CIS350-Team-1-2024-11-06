@@ -1,0 +1,21 @@
+## Meeting 8
+
+Team name: Team 1
+
+Members present: Daniel Lobenstein, Pierce McCarty, Brendan Gross
+
+Date: 11/6/2024
+
+Time: 10:15-10:45AM
+
+Discussion points: 
+
+* Discussed the other strategies, not sure where we are going to go with them, unsure if we are going to use any of the other ones or not
+* Talked about the GUI, it is now integrated with the API for the user to be able to input their key and see the live data. 
+* Discussed our goals from here, cleaning up the gui, making everything in one window, allow the ability to edit variables for strategies and select different assets
+
+Goals for next week (include responsibilities)
+
+* Update README as well as trello board, any other bits that need to be cleaned up
+* Finish up the sprint and finalize our main goals are and which direction we want to go to.
+* Maybe main focus is GUI, need to start implementing the other features we were hoping for from the beginning
