@@ -1,4 +1,4 @@
-# Sprint Plan 1
+# Sprint Plan 2
 
 **Duration:** 1 week (10/10 - 10/24)
 
