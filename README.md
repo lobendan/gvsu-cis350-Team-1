@@ -16,5 +16,10 @@ Developing an auto trader
  - [Daniel Lobenstein](https://github.com/lobendan/CIS350-HW2-Lobenstein)   Team Lead, Scrum Master, Back-End Dev
 
 ## Prerequisites
+- run ```pip install -r [path/to/requirements.txt file]``` in the terminal to make sure all prerequisites are met
 
 ## Run Instructions
+1. go to src/strat.py and press F5 or start / debug manually
+2. Autotrader is no simulating, you can manually open and close trades by following the instructions in the Terminal
+3. The output will be documented in src/trade_log.csv
+
