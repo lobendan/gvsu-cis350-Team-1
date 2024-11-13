@@ -4,7 +4,9 @@ import time
 import tkinter as tk
 from tkinter import ttk
 import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.animation import FuncAnimation
+import webbrowser
 
 TAurl = "https://api.taapi.io/bulk"
 
@@ -46,15 +48,30 @@ def start_main_app(secret_key):
     root.title("BTC/USDT Live Indicators")
 
     # Define the frame for displaying data
-    frame = ttk.Frame(root, padding="10")
-    frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+    main_frame = ttk.Frame(root, padding="10")
+    main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+
+    # Split the main frame into left and right frames
+    left_frame = ttk.Frame(main_frame, padding="10")
+    left_frame.grid(row=0, column=0, sticky=(tk.N, tk.S))
+
+    right_frame = ttk.Frame(main_frame, padding="10")
+    right_frame.grid(row=0, column=1, sticky=(tk.N, tk.S))
 
     # Labels to display the SMA values
-    sma5_label = ttk.Label(frame, text="SMA (5): Loading...", font=("Helvetica", 20, "bold"))
+    sma5_label = ttk.Label(left_frame, text="SMA (5): Loading...", font=("Helvetica", 20, "bold"))
     sma5_label.grid(row=0, column=0, pady=5)
 
-    sma20_label = ttk.Label(frame, text="SMA (20): Loading...", font=("Helvetica", 20, "bold"))
+    sma20_label = ttk.Label(left_frame, text="SMA (20): Loading...", font=("Helvetica", 20, "bold"))
     sma20_label.grid(row=1, column=0, pady=5)
+
+    # Treeview for displaying live data table
+    columns = ("Time", "SMA 5", "SMA 20")
+    tree = ttk.Treeview(left_frame, columns=columns, show="headings", height=15)
+    tree.heading("Time", text="Time"); tree.column("Time", width=100, anchor=tk.CENTER)
+    tree.heading("SMA 5", text="SMA 5"); tree.column("SMA 5", width=100, anchor=tk.CENTER)
+    tree.heading("SMA 20", text="SMA 20"); tree.column("SMA 20", width=100, anchor=tk.CENTER)
+    tree.grid(row=2, column=0, pady=10, sticky=(tk.W, tk.N, tk.E, tk.S))
 
     # Lists to hold live data
     timestamps = []
@@ -88,56 +105,35 @@ def start_main_app(secret_key):
             sma5_values.append(sma5)
             sma20_values.append(sma20)
 
-            plt.cla()
-            plt.plot(timestamps, sma5_values, label='SMA 5', color='blue')
-            plt.plot(timestamps, sma20_values, label='SMA 20', color='red')
-            plt.xlabel('Time')
-            plt.ylabel('SMA Value')
-            plt.xticks(rotation=45, ha='right')
-            plt.legend()
-            plt.tight_layout()
+            ax.cla()
+            line1, = ax.plot(timestamps, sma5_values, label='SMA 5', color='blue', picker=5)
+            line2, = ax.plot(timestamps, sma20_values, label='SMA 20', color='red', picker=5)
+            ax.set_xlabel('Time')
+            ax.set_ylabel('SMA Value')
+            ax.tick_params(axis='x', rotation=45)
+            ax.legend()
+            fig.tight_layout()
 
             # Update SMA labels
             sma5_label.config(text=f"SMA (5): {sma5:.2f}")
             sma20_label.config(text=f"SMA (20): {sma20:.2f}")
 
+            canvas.draw()
+
     # Set up the figure and animation
     fig, ax = plt.subplots()
+    canvas = FigureCanvasTkAgg(fig, master=right_frame)
+    canvas.get_tk_widget().grid(row=0, column=0, pady=10)
     ani = FuncAnimation(fig, update, interval=15000, save_count=100)
 
-    # Start the GUI main loop in a separate thread
-    def start_plot():
-        plt.show()
+    # Function to update the table with new data
+    def update_table():
+        tree.delete(*tree.get_children())
+        for i in range(len(timestamps)):
+            tree.insert("", "end", values=(timestamps[i], f"{sma5_values[i]:.2f}", f"{sma20_values[i]:.2f}"))
+        left_frame.after(1000, update_table)
 
-    # Function to display the live table
-    def start_table():
-        table_window = tk.Toplevel(root)
-        table_window.title("Live Data Table")
-        table_frame = ttk.Frame(table_window, padding="10")
-        table_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
-
-        # Treeview for displaying data
-        columns = ("Time", "SMA 5", "SMA 20")
-        tree = ttk.Treeview(table_frame, columns=columns, show="headings", height=15)
-        tree.heading("Time", text="Time"); tree.column("Time", width=100, anchor=tk.CENTER)
-        tree.heading("SMA 5", text="SMA 5"); tree.column("SMA 5", width=100, anchor=tk.CENTER)
-        tree.heading("SMA 20", text="SMA 20"); tree.column("SMA 20", width=100, anchor=tk.CENTER)
-        tree.grid(row=0, column=0, sticky=(tk.W, tk.N, tk.E, tk.S))
-        table_frame.grid_rowconfigure(0, weight=1)
-        table_frame.grid_columnconfigure(0, weight=1)
-
-        # Function to update the table with new data
-        def update_table():
-            tree.delete(*tree.get_children())
-            for i in range(len(timestamps)):
-                tree.insert("", "end", values=(timestamps[i], f"{sma5_values[i]:.2f}", f"{sma20_values[i]:.2f}"))
-            table_window.after(1, update_table)
-
-        update_table()
-
-    tk.Button(root, text="Show Graph", command=start_plot).grid(row=2, column=0, pady=10)
-    tk.Button(root, text="Show Table", command=start_table).grid(row=3, column=0, pady=10)
-
+    update_table()
     update(0)  # Initial update
     root.mainloop()
 
@@ -156,6 +152,18 @@ key_label.grid(row=0, column=0, pady=5)
 key_entry = ttk.Entry(key_frame, width=50)
 key_entry.grid(row=1, column=0, pady=5)
 
+# Link to get API key
+def open_link():
+    webbrowser.open("https://taapi.io/")
+
+link_text = "Don't have an API key? Get one "
+link_label = tk.Label(key_frame, text=link_text, font=("Helvetica", 12))
+link_label.grid(row=2, column=0, pady=5, sticky=tk.W)
+
+here_link = tk.Label(key_frame, text="here", font=("Helvetica", 12), foreground="blue", cursor="hand2", underline=True)
+here_link.grid(row=2, column=0, sticky=tk.W, padx=(len(link_text) * 7 + 6, 0))
+here_link.bind("<Button-1>", lambda e: open_link())
+
 # Function to proceed to the next screen after entering the key
 def proceed():
     secret_key = key_entry.get()
@@ -164,6 +172,6 @@ def proceed():
         start_main_app(secret_key)
 
 proceed_button = ttk.Button(key_frame, text="Proceed", command=proceed)
-proceed_button.grid(row=2, column=0, pady=10)
+proceed_button.grid(row=3, column=0, pady=10)
 
 root.mainloop()
