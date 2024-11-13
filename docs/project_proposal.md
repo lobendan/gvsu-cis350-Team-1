@@ -21,21 +21,19 @@ The program is designed to be a accessed using a desktop app as a simple but use
 The results should be output in a generated Excel file. 
 
 
-FEATURES:
-    -Simple GUI (Desirable)
+# FEATURES:
+    -Simple GUI (Essential)
     -Collect trading data (Essential)
-    -Analyze the data (Desirable)
+    -Analyze the data (Essential)
     -Create trading strategies from data (Essential)
     -Suggest trades / auto trade based on strategies (Essential)
     -Automatically open and close real trades on exchanges (Optional)
 
-# Anticipated Technologies
+# Incorporated Technologies
 
-UPDATE
-
-Use APIs and/or webscrapers to get the data.
-Technologies to create the desktop APP (GUI). 
-Use openpyxl or similar module to create the Excel files.
+- Taapi.io to get live data
+- binance to open and close crypto trades
+- D3 for data visualization in the front end
 
 
 # Method/Approach
