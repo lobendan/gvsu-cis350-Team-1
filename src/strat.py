@@ -5,12 +5,18 @@ from strat_start import IndicatorManager
 from winotify import Notification, audio
 from datetime import datetime
 from pathlib import Path
+import os
 
 # Function to log data into a CSV file
 def log_trade(action, price, short_sma, long_sma, current_profit, total_profit):
-    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     with open("src/trade_log.csv", mode="a", newline="") as file:
         writer = csv.writer(file)
+
+        if(isinstance(current_profit, float)):
+            current_profit = round(current_profit,2)
+            total_profit = round(total_profit,2)
+
         writer.writerow([timestamp, action, price, short_sma, long_sma, current_profit, total_profit])
 
 # Simulated function for receiving SMA values from an external class
@@ -152,13 +158,35 @@ class strategy:
             toast.set_audio(audio.LoopingAlarm3, loop=False)
             toast.show()
 
+#csv vars
+csv_file = 'src/trade_log.csv'
+csv_mode = 'a'
+empty = True
+
+
 # Main strategy instance
 strat = strategy()
 
+#if the file already exists make sure the header doesn't get added again and get total profit
+if os.path.exists(csv_file) and os.path.getsize(csv_file) > 0:
+    empty = False
+    # Open the file and read the contents
+    with open(csv_file, mode="r", newline="") as file:
+            reader = csv.reader(file)
+            rows = list(reader)
+            
+            # If there is at least one row, get the last row and the 8th column
+            if len(rows) > 1:  # Skip the header row
+                last_row = rows[-1]
+                last_value = last_row[6]  # Column 7 (index 6)
+    
+    strat.total_profit = float(last_value)
+
 # Create or append to the log file
-with open("src/trade_log.csv", mode="a", newline="") as file:
+with open(csv_file, mode=csv_mode, newline="") as file:
     writer = csv.writer(file)
-    writer.writerow(["timestamp", "status", "price", "short sma", "long sma", "profit since opening trade", "total profit"])
+    if(empty):
+        writer.writerow(["timestamp", "status", "price", "short sma", "long sma", "profit since opening trade", "total profit"])
 
 # Trading loop in a separate thread
 def trading_loop():
