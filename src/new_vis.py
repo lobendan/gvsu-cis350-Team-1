@@ -23,6 +23,7 @@ class TradingApp:
         self.root = root
         self.csv_file = csv_file
         self.df = pd.read_csv(csv_file)
+        self.update_active = True  # Initially the update is active
         
         # Setup plot area in Tkinter window
         self.fig, self.ax = plt.subplots(2, 2, figsize=(10, 8))
@@ -43,6 +44,13 @@ class TradingApp:
         # Set up dark mode for Tkinter window
         self.root.configure(bg='#2e2e2e')  # Dark background for the window
         self.root.option_add('*foreground', 'white')  # White text for labels
+
+        # Create buttons for Start/Pause and Flush History
+        self.start_pause_button = tk.Button(self.root, text="Pause", command=self.toggle_update)
+        self.start_pause_button.grid(row=4, column=0, padx=10, pady=10)
+
+        self.flush_button = tk.Button(self.root, text="Flush History", command=self.flush_history)
+        self.flush_button.grid(row=4, column=1, padx=10, pady=10)
 
         # Plot initial data
         self.plot_data()
@@ -130,9 +138,23 @@ class TradingApp:
         self.plot_data()
 
     def update_timer(self):
-        # Update the data every 5 seconds (can adjust timing)
-        self.update_data()
-        self.root.after(5000, self.update_timer)  # 5000ms = 5 seconds
+        if self.update_active:
+            self.update_data()
+            self.root.after(5000, self.update_timer)  # 5000ms = 5 seconds
+
+    def toggle_update(self):
+        # Toggle between start and pause
+        self.update_active = not self.update_active
+        if self.update_active:
+            self.start_pause_button.config(text="Pause")
+            self.update_timer()
+        else:
+            self.start_pause_button.config(text="Start")
+
+    def flush_history(self):
+        # Clear the data and reset the plots
+        self.df = pd.DataFrame(columns=["timestamp", "price", "status", "short sma", "long sma", "profit since opening trade", "total profit"])
+        self.plot_data()
 
 
 # Main Tkinter GUI setup
