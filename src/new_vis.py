@@ -7,6 +7,10 @@ import os
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 import matplotlib.dates as mdates
+import threading
+import time
+from strat import run_Trader
+
 
 # Define a class for monitoring file changes
 class FileWatcher(FileSystemEventHandler):
@@ -17,13 +21,14 @@ class FileWatcher(FileSystemEventHandler):
         if event.src_path.endswith(".csv"):
             self.app.update_data()
 
+
 # Define the main application
 class TradingApp:
     def __init__(self, root, csv_file):
         self.root = root
         self.csv_file = csv_file
         self.df = pd.read_csv(csv_file)
-        self.update_active = True  # Initially the update is active
+        self.update_active = True  # Initially, the update is active
         
         # Setup plot area in Tkinter window
         self.fig, self.ax = plt.subplots(2, 2, figsize=(10, 8))
@@ -46,11 +51,11 @@ class TradingApp:
         self.root.option_add('*foreground', 'white')  # White text for labels
 
         # Create buttons for Start/Pause and Flush History
-        self.start_pause_button = tk.Button(self.root, text="Pause", command=self.toggle_update)
-        self.start_pause_button.grid(row=4, column=0, padx=10, pady=10)
+        # self.start_pause_button = tk.Button(self.root, text="Pause", command=self.toggle_update)
+        # self.start_pause_button.grid(row=4, column=0, padx=10, pady=10)
 
-        self.flush_button = tk.Button(self.root, text="Flush History", command=self.flush_history)
-        self.flush_button.grid(row=4, column=1, padx=10, pady=10)
+        # self.flush_button = tk.Button(self.root, text="Flush History", command=self.flush_history)
+        # self.flush_button.grid(row=4, column=1, padx=10, pady=10)
 
         # Plot initial data
         self.plot_data()
@@ -157,16 +162,29 @@ class TradingApp:
         self.plot_data()
 
 
+# Background function for the trading backend
+def run_backend(csv_file):
+    trader = run_Trader()
+    while True:
+        trader.run()
+        time.sleep(15)  # Adjust the update frequency as needed
+
+
 # Main Tkinter GUI setup
 def run_app():
-    root = tk.Tk()
-    root.title("Trading Data Visualizer")
-    
-    # File path to your CSV (updated path)
+    # File path to your CSV
     csv_file = "src/trade_log.csv"
     
+    # Start the backend in a separate thread
+    backend_thread = threading.Thread(target=run_backend, args=(csv_file,), daemon=True)
+    backend_thread.start()
+
+    # Start the frontend
+    root = tk.Tk()
+    root.title("Trading Data Visualizer")
     app = TradingApp(root, csv_file)
     root.mainloop()
+
 
 if __name__ == "__main__":
     run_app()

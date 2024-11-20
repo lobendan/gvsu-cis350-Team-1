@@ -144,7 +144,7 @@ class strategy:
         elif self.active_trades_amnt > 0 and self.opened_trade_type == "short":
             log_trade("active", price, short_sma, long_sma, self.opened_trade_price - price, self.total_profit)
         else:
-            log_trade("idle", price, short_sma, long_sma, "-", self.total_profit)
+            log_trade("idle", price, short_sma, long_sma, 0, self.total_profit)
 
     def notify(self, longshort, openclose, profit):
         profit = round(profit, 2)
