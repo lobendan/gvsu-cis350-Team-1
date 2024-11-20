@@ -118,17 +118,15 @@ class TradingApp:
         self.ax[0, 0].autoscale_view()  # Apply new limits
 
         # Rolling average of total profit
-        rolling_profit = self.df['total profit'].rolling(window=5).mean()
-        self.ax[0, 1].plot(self.df['timestamp'], rolling_profit, label="Rolling Avg Profit", color="blue")
-        self.ax[0, 1].set_title("Rolling Average of Total Profit")
+        self.ax[0, 1].plot(self.df['timestamp'], self.df['networth'],color="blue")
+        self.ax[0, 1].set_title("Networth")
         self.ax[0, 1].set_xlabel('Time')
-        self.ax[0, 1].set_ylabel('Rolling Avg Profit')
+        self.ax[0, 1].set_ylabel('Networth')
 
         # Rotate and format x-axis labels
         self.ax[0, 1].tick_params(axis='x', rotation=45)
         self.ax[0, 1].xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d %H:%M'))
-        self.ax[0, 1].legend(loc='upper left', fontsize='small')
-
+        
         # Autoscale for the second subplot
         self.ax[0, 1].relim()
         self.ax[0, 1].autoscale_view()

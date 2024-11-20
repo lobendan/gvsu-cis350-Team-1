@@ -42,7 +42,7 @@ class strategy:
         self.opened_trade_price = 0
         self.opened_trade_type = ""
         self.total_profit = 0
-        self.networth = 0
+        self.networth = 1000
         
         self.desktop_notification = True
         self.icon_path = Path(__file__).parent / 'logo.ico'
@@ -213,7 +213,7 @@ class run_Trader:
                     if len(rows) > 1:  # Skip the header row
                         last_row = rows[-1]
                         self.strat.total_profit = float(last_row[6])  # Column 7 (index 6)
-                        self.start.networth = float(last_row[7])
+                        self.strat.networth = float(last_row[7])
                     
                     else:
                         self.strat.networth = 1000 #always start with $1000 usd for simulation
