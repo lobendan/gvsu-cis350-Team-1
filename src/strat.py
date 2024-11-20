@@ -8,7 +8,7 @@ from pathlib import Path
 import os
 
 # Function to log data into a CSV file
-def log_trade(action, price, short_sma, long_sma, current_profit, total_profit):
+def log_trade(action, price, short_sma, long_sma, current_profit, total_profit, networth):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     with open("src/trade_log.csv", mode="a", newline="") as file:
         writer = csv.writer(file)
@@ -18,8 +18,9 @@ def log_trade(action, price, short_sma, long_sma, current_profit, total_profit):
             total_profit = round(total_profit,2)
             short_sma = round(short_sma, 2)
             long_sma = round(long_sma, 2)
+            networth = round(networth, 2)
 
-        writer.writerow([timestamp, action, price, short_sma, long_sma, current_profit, total_profit])
+        writer.writerow([timestamp, action, price, short_sma, long_sma, current_profit, total_profit, networth])
 
 # Simulated function for receiving SMA values from an external class
 class PriceDataProvider:
@@ -41,6 +42,7 @@ class strategy:
         self.opened_trade_price = 0
         self.opened_trade_type = ""
         self.total_profit = 0
+        self.networth = 0
         
         self.desktop_notification = True
         self.icon_path = Path(__file__).parent / 'logo.ico'
@@ -91,19 +93,19 @@ class strategy:
 
         # Automated Trade Logic (close trades)
         elif self.active_trades_amnt > 0 and self.opened_trade_type == "long" and price >= self.opened_trade_price + self.take_profit:
-            self.close_trade("long", "TP", price, short_sma, long_sma)
+            self.close_trade("long", "(TP)", price, short_sma, long_sma)
             self.manual_trade = ""
             
         elif self.active_trades_amnt > 0 and self.opened_trade_type == "long" and price <= self.opened_trade_price - self.stop_loss:
-            self.close_trade("long", "SL", price, short_sma, long_sma)
+            self.close_trade("long", "(SL)", price, short_sma, long_sma)
             self.manual_trade = ""
 
         elif self.active_trades_amnt > 0 and self.opened_trade_type == "short" and price <= self.opened_trade_price - self.take_profit:
-            self.close_trade("short", "TP", price, short_sma, long_sma)
+            self.close_trade("short", "(TP)", price, short_sma, long_sma)
             self.manual_trade = ""
 
         elif self.active_trades_amnt > 0 and self.opened_trade_type == "short" and price >= self.opened_trade_price + self.stop_loss:
-            self.close_trade("short", "SL", price, short_sma, long_sma)
+            self.close_trade("short", "(SL)", price, short_sma, long_sma)
             self.manual_trade = ""
         
         else: 
@@ -111,7 +113,7 @@ class strategy:
 
     # Helper methods to handle trade actions automatically
     def open_trade(self, trade_type, price, short_sma, long_sma):
-        log_trade(f"Open {trade_type.capitalize()} Trade", price, short_sma, long_sma, 0, self.total_profit)
+        log_trade(f"Open {trade_type.capitalize()} Trade", price, short_sma, long_sma, 0, self.total_profit, self.networth)
         self.active_trades_amnt += 1
         self.opened_trade_type = trade_type
         self.opened_trade_price = price
@@ -120,7 +122,8 @@ class strategy:
     def close_trade(self, trade_type, close_reason, price, short_sma, long_sma):
         profit = (price - self.opened_trade_price) if trade_type == "long" else (self.opened_trade_price - price)
         self.total_profit += profit
-        log_trade(f"Close {trade_type.capitalize()} Trade ({close_reason})", price, short_sma, long_sma, profit, self.total_profit)
+        self.networth += profit
+        log_trade(f"Close {trade_type.capitalize()} Trade {close_reason}", price, short_sma, long_sma, profit, self.total_profit, self.networth)
         self.active_trades_amnt -= 1
         self.notify(trade_type, "closed", profit)
 
@@ -137,7 +140,7 @@ class strategy:
             price, short_sma, long_sma = self.price_data_provider.get_price_and_sma()
             profit = (price - self.opened_trade_price) if self.opened_trade_type == "long" else (self.opened_trade_price - price)
             self.total_profit += profit
-            log_trade(f"Close {self.opened_trade_type.capitalize()} Trade (Manual)", price, short_sma, long_sma, profit, self.total_profit)
+            log_trade(f"Close {self.opened_trade_type.capitalize()} Trade (Manual)", price, short_sma, long_sma, profit, self.total_profit, self.networth)
             self.active_trades_amnt -= 1
             self.notify(self.opened_trade_type, "closed", profit)
         else:
@@ -145,11 +148,11 @@ class strategy:
 
     def log_active_status(self, price, short_sma, long_sma):
         if self.active_trades_amnt > 0 and self.opened_trade_type == "long":
-            log_trade("active", price, short_sma, long_sma, price - self.opened_trade_price, self.total_profit)
+            log_trade("active", price, short_sma, long_sma, price - self.opened_trade_price, self.total_profit, self.networth)
         elif self.active_trades_amnt > 0 and self.opened_trade_type == "short":
-            log_trade("active", price, short_sma, long_sma, self.opened_trade_price - price, self.total_profit)
+            log_trade("active", price, short_sma, long_sma, self.opened_trade_price - price, self.total_profit, self.networth)
         else:
-            log_trade("idle", price, short_sma, long_sma, 0, self.total_profit)
+            log_trade("idle", price, short_sma, long_sma, 0, self.total_profit, self.networth)
 
     def notify(self, longshort, openclose, profit):
         profit = round(profit, 2)
@@ -209,15 +212,19 @@ class run_Trader:
                     # If there is at least one row, get the last row and the 8th column
                     if len(rows) > 1:  # Skip the header row
                         last_row = rows[-1]
-                        last_value = last_row[6]  # Column 7 (index 6)
-            
-            self.strat.total_profit = float(last_value)
+                        self.strat.total_profit = float(last_row[6])  # Column 7 (index 6)
+                        self.start.networth = float(last_row[7])
+                    
+                    else:
+                        self.strat.networth = 1000 #always start with $1000 usd for simulation
+                        self.strat.total_profit = 0
 
+            
         # Create or append to the log file
         with open(csv_file, mode=csv_mode, newline="") as file:
             writer = csv.writer(file)
             if(empty):
-                writer.writerow(["timestamp", "status", "price", "short sma", "long sma", "profit since opening trade", "total profit"])
+                writer.writerow(["timestamp", "status", "price", "short sma", "long sma", "profit since opening trade", "total profit", "networth"])
 
         # Start threads
         # trading_thread = threading.Thread(target=trading_loop(strat))
