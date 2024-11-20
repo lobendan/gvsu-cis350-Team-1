@@ -24,11 +24,12 @@ class FileWatcher(FileSystemEventHandler):
 
 # Define the main application
 class TradingApp:
-    def __init__(self, root, csv_file):
+    def __init__(self, root, csv_file, trader):
         self.root = root
         self.csv_file = csv_file
         self.df = pd.read_csv(csv_file)
         self.update_active = True  # Initially, the update is active
+        self.trader = trader
         
         # Setup plot area in Tkinter window
         self.fig, self.ax = plt.subplots(2, 2, figsize=(10, 8))
@@ -50,13 +51,21 @@ class TradingApp:
         self.root.configure(bg='#2e2e2e')  # Dark background for the window
         self.root.option_add('*foreground', 'white')  # White text for labels
 
-        # Create buttons for Start/Pause and Flush History
-        # self.start_pause_button = tk.Button(self.root, text="Pause", command=self.toggle_update)
-        # self.start_pause_button.grid(row=4, column=0, padx=10, pady=10)
+        # Buttons
+        self.open_long = tk.Button(self.root, text="Open Long", fg="black", bg='lightgreen',command=self.open_long)
+        self.open_long.grid(row=4, column=2, padx=10, pady=10)
 
-        # self.flush_button = tk.Button(self.root, text="Flush History", command=self.flush_history)
-        # self.flush_button.grid(row=4, column=1, padx=10, pady=10)
+        self.open_short = tk.Button(self.root, text="Open Short", fg="black", bg='crimson', command=self.open_short)
+        self.open_short.grid(row=4, column=3, padx=10, pady=10)
 
+        self.close_trade = tk.Button(self.root, text="Close Trade", fg="black", bg='coral', command=self.close_trade)
+        self.close_trade.grid(row=4, column=4, padx=10, pady=10)
+
+        self.flush_button = tk.Button(self.root, text="Flush History", fg="black", command=self.flush_history)
+        self.flush_button.grid(row=4, column=0, padx=10, pady=10)
+
+        self.start_pause_button = tk.Button(self.root, text="Pause", fg="black", bg='lightgray', command=self.toggle_update)
+        self.start_pause_button.grid(row=4, column=1, padx=10, pady=10)
         # Plot initial data
         self.plot_data()
 
@@ -76,43 +85,55 @@ class TradingApp:
 
         # Convert 'timestamp' to datetime and handle time format
         self.df['timestamp'] = pd.to_datetime(self.df['timestamp'], format='%Y-%m-%d %H:%M:%S')
-        
-        # Time-series plot of price
+
+        # Time-series plot of price with SMA overlays
         self.ax[0, 0].plot(self.df['timestamp'], self.df['price'], label="Price", color="cyan")
-        self.ax[0, 0].set_title("Price Over Time")
+        self.ax[0, 0].plot(self.df['timestamp'], self.df['short sma'], label="Short SMA", color="red", linestyle='--')
+        self.ax[0, 0].plot(self.df['timestamp'], self.df['long sma'], label="Long SMA", color="green", linestyle='--')
+        self.ax[0, 0].set_title("Price and SMAs Over Time")
         self.ax[0, 0].set_xlabel('Time')
-        self.ax[0, 0].set_ylabel('Price')
+        self.ax[0, 0].set_ylabel('Price/SMA Values')
 
         # Highlight trades with markers
         long_trades = self.df[self.df['status'] == 'Open Long Trade']
         short_trades = self.df[self.df['status'] == 'Open Short Trade']
-        
-        # Mark long trades
+
         self.ax[0, 0].scatter(long_trades['timestamp'], long_trades['price'], color="green", label="Long Trade", zorder=5)
         for i, row in long_trades.iterrows():
             self.ax[0, 0].text(row['timestamp'], row['price'], "Long", color="white", fontsize=9, ha='right')
 
-        # Mark short trades
         self.ax[0, 0].scatter(short_trades['timestamp'], short_trades['price'], color="red", label="Short Trade", zorder=5)
         for i, row in short_trades.iterrows():
-            self.ax[0, 0].text(row['timestamp'], row['price']+40, "Short", color="white", fontsize=9, ha='center')
+            self.ax[0, 0].text(row['timestamp'], row['price'] + 40, "Short", color="white", fontsize=9, ha='center')
 
         # Rotate and format x-axis labels
         self.ax[0, 0].tick_params(axis='x', rotation=45)
         self.ax[0, 0].xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d %H:%M'))
 
-        # Short vs Long SMA plot
-        self.ax[0, 1].plot(self.df['timestamp'], self.df['short sma'], label="Short SMA", color="red")
-        self.ax[0, 1].plot(self.df['timestamp'], self.df['long sma'], label="Long SMA", color="green")
-        self.ax[0, 1].set_title("Short SMA vs Long SMA")
+        # Add a legend
+        self.ax[0, 0].legend(loc='upper left', fontsize='small')
+
+        # Autoscale for the first subplot
+        self.ax[0, 0].relim()  # Recalculate limits
+        self.ax[0, 0].autoscale_view()  # Apply new limits
+
+        # Rolling average of total profit
+        rolling_profit = self.df['total profit'].rolling(window=5).mean()
+        self.ax[0, 1].plot(self.df['timestamp'], rolling_profit, label="Rolling Avg Profit", color="blue")
+        self.ax[0, 1].set_title("Rolling Average of Total Profit")
         self.ax[0, 1].set_xlabel('Time')
-        self.ax[0, 1].set_ylabel('SMA Values')
+        self.ax[0, 1].set_ylabel('Rolling Avg Profit')
 
         # Rotate and format x-axis labels
         self.ax[0, 1].tick_params(axis='x', rotation=45)
         self.ax[0, 1].xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d %H:%M'))
+        self.ax[0, 1].legend(loc='upper left', fontsize='small')
 
-        # Profit since opening trade plot (rounded values)
+        # Autoscale for the second subplot
+        self.ax[0, 1].relim()
+        self.ax[0, 1].autoscale_view()
+
+        # Profit since opening trade plot
         self.ax[1, 0].plot(self.df['timestamp'], self.df['profit since opening trade'], label="Profit Since Opening", color="purple")
         self.ax[1, 0].set_title("Profit Since Opening Trade")
         self.ax[1, 0].set_xlabel('Time')
@@ -121,6 +142,10 @@ class TradingApp:
         # Rotate and format x-axis labels
         self.ax[1, 0].tick_params(axis='x', rotation=45)
         self.ax[1, 0].xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d %H:%M'))
+
+        # Autoscale for the third subplot
+        self.ax[1, 0].relim()
+        self.ax[1, 0].autoscale_view()
 
         # Total profit plot
         self.ax[1, 1].plot(self.df['timestamp'], self.df['total profit'], label="Total Profit", color="orange")
@@ -132,9 +157,14 @@ class TradingApp:
         self.ax[1, 1].tick_params(axis='x', rotation=45)
         self.ax[1, 1].xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d %H:%M'))
 
+        # Autoscale for the fourth subplot
+        self.ax[1, 1].relim()
+        self.ax[1, 1].autoscale_view()
+
         # Apply tight layout and redraw canvas
-        self.fig.tight_layout()
+        #self.fig.tight_layout()
         self.canvas.draw()
+
 
 
     def update_data(self):
@@ -145,7 +175,7 @@ class TradingApp:
     def update_timer(self):
         if self.update_active:
             self.update_data()
-            self.root.after(5000, self.update_timer)  # 5000ms = 5 seconds
+            self.root.after(15000, self.update_timer)  # 15000ms = 15 seconds
 
     def toggle_update(self):
         # Toggle between start and pause
@@ -156,6 +186,15 @@ class TradingApp:
         else:
             self.start_pause_button.config(text="Start")
 
+    def open_long(self):
+        self.trader.strat.manual_trade = 'open long'
+
+    def open_short(self):
+        self.trader.strat.manual_trade = 'open short'
+
+    def close_trade(self):
+        self.trader.strat.manual_trade = 'close trade'
+
     def flush_history(self):
         # Clear the data and reset the plots
         self.df = pd.DataFrame(columns=["timestamp", "price", "status", "short sma", "long sma", "profit since opening trade", "total profit"])
@@ -163,8 +202,7 @@ class TradingApp:
 
 
 # Background function for the trading backend
-def run_backend(csv_file):
-    trader = run_Trader()
+def run_backend(trader):
     while True:
         trader.run()
         time.sleep(15)  # Adjust the update frequency as needed
@@ -176,13 +214,14 @@ def run_app():
     csv_file = "src/trade_log.csv"
     
     # Start the backend in a separate thread
-    backend_thread = threading.Thread(target=run_backend, args=(csv_file,), daemon=True)
+    trader = run_Trader()
+    backend_thread = threading.Thread(target=run_backend, args=(trader,), daemon=True)
     backend_thread.start()
 
     # Start the frontend
     root = tk.Tk()
     root.title("Trading Data Visualizer")
-    app = TradingApp(root, csv_file)
+    app = TradingApp(root, csv_file, trader)
     root.mainloop()
 
 

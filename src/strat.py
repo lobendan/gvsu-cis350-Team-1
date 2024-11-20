@@ -82,24 +82,29 @@ class strategy:
             self.close_trade("manual", "", price, short_sma, long_sma) #leave reason empty as the reason is manual (which is already known)
             self.manual_trade = ""
 
-        # Automated Trade Logic
+        # Automated Trade Logic (open trades)
         elif self.current_higher == "short" and self.last_higher == "long" and self.active_trades_amnt < self.parallel_trades_amnt:
             self.open_trade("long", price, short_sma, long_sma)
             
         elif self.current_higher == "long" and self.last_higher == "short" and self.active_trades_amnt < self.parallel_trades_amnt:
             self.open_trade("short", price, short_sma, long_sma)
 
+        # Automated Trade Logic (close trades)
         elif self.active_trades_amnt > 0 and self.opened_trade_type == "long" and price >= self.opened_trade_price + self.take_profit:
             self.close_trade("long", "TP", price, short_sma, long_sma)
+            self.manual_trade = ""
             
         elif self.active_trades_amnt > 0 and self.opened_trade_type == "long" and price <= self.opened_trade_price - self.stop_loss:
             self.close_trade("long", "SL", price, short_sma, long_sma)
+            self.manual_trade = ""
 
         elif self.active_trades_amnt > 0 and self.opened_trade_type == "short" and price <= self.opened_trade_price - self.take_profit:
             self.close_trade("short", "TP", price, short_sma, long_sma)
+            self.manual_trade = ""
 
         elif self.active_trades_amnt > 0 and self.opened_trade_type == "short" and price >= self.opened_trade_price + self.stop_loss:
             self.close_trade("short", "SL", price, short_sma, long_sma)
+            self.manual_trade = ""
         
         else: 
             self.log_active_status(price, short_sma, long_sma)
