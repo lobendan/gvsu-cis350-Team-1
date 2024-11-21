@@ -10,6 +10,10 @@ import matplotlib.dates as mdates
 import threading
 import time
 from strat import run_Trader
+from pathlib import Path
+from PIL import Image, ImageTk
+from tkinter import Label
+
 
 
 # Define a class for monitoring file changes
@@ -89,6 +93,8 @@ class TradingApp:
 
         # Plot initial data
         self.plot_data()
+
+        self.add_logo()
 
         # Set up file watcher for live updates
         self.observer = Observer()
@@ -182,8 +188,12 @@ class TradingApp:
 
         # Apply tight layout and redraw canvas
         #self.fig.tight_layout()
-        self.canvas.draw()
-        self.fig.subplots_adjust(hspace=.4)  # Adjust vertical spacing (increase the value for more space)
+        if self.canvas is None:
+            pass #wait until it's initialized
+
+        else:
+            self.canvas.draw()    
+            self.fig.subplots_adjust(hspace=.4)  # Adjust vertical spacing (increase the value for more space)
 
 
     def update_data(self):
@@ -207,6 +217,18 @@ class TradingApp:
             self.start_pause_button.config(text="Start Autotrader")
             self.trader.active = False
 
+    def add_logo(self):
+        # Load the logo image (replace with the path to your logo image)
+        logo_path = Path(__file__).parent / 'logo.png' 
+        logo = Image.open(logo_path)
+        logo_resized = logo.resize((522, 326))
+        logo_tk = ImageTk.PhotoImage(logo_resized)
+        # Create a Label widget and set the image as the label's image
+        logo_label = Label(self.root, image=logo_tk, bg='#2e2e2e')  # Set background color to match the window
+        logo_label.image = logo_tk  # Keep a reference to avoid garbage collection
+        
+        # Position the logo (you can change row and column based on your layout)
+        logo_label.grid(row=0, column=2, padx=7, pady=7)  # Adjust position as needed
 
     def open_long(self):
         self.trader.strat.manual_trade = 'open long'
@@ -270,6 +292,7 @@ def run_backend(trader):
 def run_app():
     # File path to your CSV
     csv_file = "src/trade_log.csv"
+    icon_path = Path(__file__).parent / 'logo.png'
     
     # Start the backend in a separate thread
     trader = run_Trader()
@@ -279,6 +302,15 @@ def run_app():
     # Start the frontend
     root = tk.Tk()
     root.title("Trading Data Visualizer")
+    icon_image = tk.PhotoImage(file=icon_path)  # Replace with your image file path
+    root.iconphoto(True, icon_image)
+
+
+    screen_width = root.winfo_screenwidth()
+    screen_height = root.winfo_screenheight()
+
+    # Set the window size to the full screen size
+    root.geometry(f"{screen_width}x{screen_height}+0+0")
     app = TradingApp(root, csv_file, trader)
     root.mainloop()
 

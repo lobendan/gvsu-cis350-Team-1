@@ -1,5 +1,4 @@
 import csv
-import threading
 import time
 from strat_start import IndicatorManager
 from winotify import Notification, audio
