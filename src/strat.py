@@ -7,7 +7,7 @@ from pathlib import Path
 import os
 
 # Function to log data into a CSV file
-def log_trade(action, price, short_sma, long_sma, current_profit, total_profit, networth):
+def log_trade(action, price, short_sma, long_sma, current_profit, total_profit, networth, leverage):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     with open("src/trade_log.csv", mode="a", newline="") as file:
         writer = csv.writer(file)
@@ -19,7 +19,7 @@ def log_trade(action, price, short_sma, long_sma, current_profit, total_profit, 
             long_sma = round(long_sma, 2)
             networth = round(networth, 2)
 
-        writer.writerow([timestamp, action, price, short_sma, long_sma, current_profit, total_profit, networth])
+        writer.writerow([timestamp, action, price, short_sma, long_sma, current_profit, total_profit, networth, leverage])
 
 # Simulated function for receiving SMA values from an external class
 class PriceDataProvider:
@@ -55,6 +55,7 @@ class strategy:
         self.last_higher = ""
         self.current_higher = ""
         self.manual_trade = ""
+        self.leverage = 1
 
         self.parallel_trades_amnt = 1
         self.active_trades_amnt = 0
@@ -91,19 +92,19 @@ class strategy:
             self.open_trade("short", price, short_sma, long_sma)
 
         # Automated Trade Logic (close trades)
-        elif self.active_trades_amnt > 0 and self.opened_trade_type == "long" and price >= self.opened_trade_price + self.take_profit:
+        elif self.active_trades_amnt > 0 and self.opened_trade_type == "long" and price >= (self.opened_trade_price + self.take_profit) * self.leverage:
             self.close_trade("long", "(TP)", price, short_sma, long_sma)
             self.manual_trade = ""
             
-        elif self.active_trades_amnt > 0 and self.opened_trade_type == "long" and price <= self.opened_trade_price - self.stop_loss:
+        elif self.active_trades_amnt > 0 and self.opened_trade_type == "long" and price <= (self.opened_trade_price - self.stop_loss) * self.leverage:
             self.close_trade("long", "(SL)", price, short_sma, long_sma)
             self.manual_trade = ""
 
-        elif self.active_trades_amnt > 0 and self.opened_trade_type == "short" and price <= self.opened_trade_price - self.take_profit:
+        elif self.active_trades_amnt > 0 and self.opened_trade_type == "short" and price <= (self.opened_trade_price - self.take_profit) * self.leverage:
             self.close_trade("short", "(TP)", price, short_sma, long_sma)
             self.manual_trade = ""
 
-        elif self.active_trades_amnt > 0 and self.opened_trade_type == "short" and price >= self.opened_trade_price + self.stop_loss:
+        elif self.active_trades_amnt > 0 and self.opened_trade_type == "short" and price >= (self.opened_trade_price + self.stop_loss) * self.leverage:
             self.close_trade("short", "(SL)", price, short_sma, long_sma)
             self.manual_trade = ""
         
@@ -112,46 +113,27 @@ class strategy:
 
     # Helper methods to handle trade actions automatically
     def open_trade(self, trade_type, price, short_sma, long_sma):
-        log_trade(f"Open {trade_type.capitalize()} Trade", price, short_sma, long_sma, 0, self.total_profit, self.networth)
+        log_trade(f"Open {trade_type.capitalize()} Trade", price, short_sma, long_sma, 0, self.total_profit, self.networth, self.leverage)
         self.active_trades_amnt += 1
         self.opened_trade_type = trade_type
         self.opened_trade_price = price
         self.notify(trade_type, "opened", 0)
 
     def close_trade(self, trade_type, close_reason, price, short_sma, long_sma):
-        profit = (price - self.opened_trade_price) if trade_type == "long" else (self.opened_trade_price - price)
+        profit = (price - self.opened_trade_price) * self.leverage if trade_type == "long" else (self.opened_trade_price - price) * self.leverage
         self.total_profit += profit
         self.networth += profit
-        log_trade(f"Close {trade_type.capitalize()} Trade {close_reason}", price, short_sma, long_sma, profit, self.total_profit, self.networth)
+        log_trade(f"Close {trade_type.capitalize()} Trade {close_reason}", price, short_sma, long_sma, profit, self.total_profit, self.networth, self.leverage)
         self.active_trades_amnt -= 1
         self.notify(trade_type, "closed", profit)
 
-    # Manual Trade Control Methods
-    def open_manual_trade(self, trade_type):
-        if self.active_trades_amnt < self.parallel_trades_amnt:
-            price, short_sma, long_sma = self.price_data_provider.get_price_and_sma()
-            self.open_trade(trade_type, price, short_sma, long_sma)
-        else:
-            print("Max parallel trades reached. Cannot open another trade.")
-
-    def close_manual_trade(self):
-        if self.active_trades_amnt > 0:
-            price, short_sma, long_sma = self.price_data_provider.get_price_and_sma()
-            profit = (price - self.opened_trade_price) if self.opened_trade_type == "long" else (self.opened_trade_price - price)
-            self.total_profit += profit
-            log_trade(f"Close {self.opened_trade_type.capitalize()} Trade (Manual)", price, short_sma, long_sma, profit, self.total_profit, self.networth)
-            self.active_trades_amnt -= 1
-            self.notify(self.opened_trade_type, "closed", profit)
-        else:
-            print("No active trades to close.")
-
     def log_active_status(self, price, short_sma, long_sma):
         if self.active_trades_amnt > 0 and self.opened_trade_type == "long":
-            log_trade("active", price, short_sma, long_sma, price - self.opened_trade_price, self.total_profit, self.networth)
+            log_trade("active", price, short_sma, long_sma, (price - self.opened_trade_price)*self.leverage, self.total_profit, self.networth, self.leverage)
         elif self.active_trades_amnt > 0 and self.opened_trade_type == "short":
-            log_trade("active", price, short_sma, long_sma, self.opened_trade_price - price, self.total_profit, self.networth)
+            log_trade("active", price, short_sma, long_sma, (self.opened_trade_price - price)*self.leverage, self.total_profit, self.networth, self.leverage)
         else:
-            log_trade("idle", price, short_sma, long_sma, 0, self.total_profit, self.networth)
+            log_trade("idle", price, short_sma, long_sma, 0, self.total_profit, self.networth, self.leverage)
 
     def notify(self, longshort, openclose, profit):
         profit = round(profit, 2)
@@ -224,7 +206,7 @@ class run_Trader:
         with open(csv_file, mode=csv_mode, newline="") as file:
             writer = csv.writer(file)
             if(empty):
-                writer.writerow(["timestamp", "status", "price", "short sma", "long sma", "profit since opening trade", "total profit", "networth"])
+                writer.writerow(["timestamp", "status", "price", "short sma", "long sma", "profit since opening trade", "total profit", "networth", "leverage"])
 
         # Start threads
         # trading_thread = threading.Thread(target=trading_loop(strat))

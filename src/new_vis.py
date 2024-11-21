@@ -121,6 +121,17 @@ class TradingApp:
         self.submit_take_profit = tk.Button(root, text="Update", fg="black", command=self.update_take_profit)
         self.submit_take_profit.grid(row=2, column=4, padx=10, pady=5)
 
+        # Leverage
+        self.leverage_label = tk.Label(root, text="Leverage:", fg="black")
+        self.leverage_label.grid(row=4, column=2, padx=10, pady=5)
+
+        self.leverage_entry = tk.Entry(root, fg="black", validate="key", validatecommand=(self.validate_numeric, '%P'))
+        self.leverage_entry.insert(0, f"{self.trader.strat.leverage}")  # Replace with actual current value
+        self.leverage_entry.grid(row=4, column=3, padx=10, pady=5)
+
+        self.submit_leverage = tk.Button(root, text="Update", fg="black", command=self.update_leverage)
+        self.submit_leverage.grid(row=4, column=4, padx=10, pady=5)
+
         # Plot initial data
         self.plot_data()
 
@@ -303,6 +314,13 @@ class TradingApp:
             self.trader.strat.stop_loss = amount
         except:
             print('invalid input (stop loss)')
+
+    def update_leverage(self):
+        try:
+            amount = float(self.leverage_entry.get())
+            self.trader.strat.leverage = amount
+        except:
+            print('invalid input (position size)')
 
     def flush_history(self):
         # Clear the data and reset the plots
