@@ -70,6 +70,9 @@ class TradingApp:
         self.flush_button = tk.Button(self.root, text="Flush History", fg="black", command=self.flush_history)
         self.flush_button.grid(row=4, column=0, padx=10, pady=10)
 
+        self.flush_profit_button = tk.Button(self.root, text="Flush Total Profit Session", fg="black", command=self.flush_profit)
+        self.flush_profit_button.grid(row=5, column=0, padx=10, pady=10)
+
         self.start_pause_button = tk.Button(self.root, text="Pause Autotrader", fg="black", bg='lightgray', command=self.toggle_update)
         self.start_pause_button.grid(row=4, column=1, padx=10, pady=10)
 
@@ -90,6 +93,9 @@ class TradingApp:
 
         self.withdraw_button = tk.Button(self.root, text="Confirm Withdrawal", fg="black", bg='lightblue', command=self.withdraw_money)
         self.withdraw_button.grid(row=6, column=3, padx=10, pady=5)
+
+        self.info_box_label = tk.Label(self.root, text="Active Profit: $0.00\nCurrent Networth: $0.00", bg='#2e2e2e')
+        self.info_box_label.grid(row=1, column=2, padx=10, pady=5)
 
         # Plot initial data
         self.plot_data()
@@ -117,9 +123,9 @@ class TradingApp:
         self.ax[0, 0].plot(self.df['timestamp'], self.df['price'], label="Price", color="cyan")
         self.ax[0, 0].plot(self.df['timestamp'], self.df['short sma'], label="Short SMA", color="red", linestyle='--')
         self.ax[0, 0].plot(self.df['timestamp'], self.df['long sma'], label="Long SMA", color="green", linestyle='--')
-        self.ax[0, 0].set_title("Price and SMAs Over Time")
-        self.ax[0, 0].set_xlabel('Time')
-        self.ax[0, 0].set_ylabel('Price/SMA Values')
+        self.ax[0, 0].set_title("Price and SMAs Over Time", color= 'white')
+        self.ax[0, 0].set_xlabel('Time', color= 'white')
+        self.ax[0, 0].set_ylabel('Price/SMA Values', color= 'white')
 
         # Highlight trades with markers
         long_trades = self.df[self.df['status'] == 'Open Long Trade']
@@ -146,9 +152,9 @@ class TradingApp:
 
         # Rolling average of total profit
         self.ax[0, 1].plot(self.df['timestamp'], self.df['networth'],color="blue")
-        self.ax[0, 1].set_title("Networth")
-        self.ax[0, 1].set_xlabel('Time')
-        self.ax[0, 1].set_ylabel('Networth')
+        self.ax[0, 1].set_title("Networth", color= 'white')
+        self.ax[0, 1].set_xlabel('Time', color= 'white')
+        self.ax[0, 1].set_ylabel('Networth', color= 'white')
 
         # Rotate and format x-axis labels
         self.ax[0, 1].tick_params(axis='x', rotation=45)
@@ -160,9 +166,9 @@ class TradingApp:
 
         # Profit since opening trade plot
         self.ax[1, 0].plot(self.df['timestamp'], self.df['profit since opening trade'], label="Profit Since Opening", color="purple")
-        self.ax[1, 0].set_title("Profit Since Opening Trade")
-        self.ax[1, 0].set_xlabel('Time')
-        self.ax[1, 0].set_ylabel('Profit')
+        self.ax[1, 0].set_title("Profit Since Opening Trade", color= 'white')
+        self.ax[1, 0].set_xlabel('Time', color= 'white')
+        self.ax[1, 0].set_ylabel('Profit', color= 'white')
 
         # Rotate and format x-axis labels
         self.ax[1, 0].tick_params(axis='x', rotation=45)
@@ -174,9 +180,9 @@ class TradingApp:
 
         # Total profit plot
         self.ax[1, 1].plot(self.df['timestamp'], self.df['total profit'], label="Total Profit", color="orange")
-        self.ax[1, 1].set_title("Total Profit")
-        self.ax[1, 1].set_xlabel('Time')
-        self.ax[1, 1].set_ylabel('Total Profit')
+        self.ax[1, 1].set_title("Total Profit", color= 'white')
+        self.ax[1, 1].set_xlabel('Time', color= 'white')
+        self.ax[1, 1].set_ylabel('Total Profit', color= 'white')
 
         # Rotate and format x-axis labels
         self.ax[1, 1].tick_params(axis='x', rotation=45)
@@ -199,6 +205,13 @@ class TradingApp:
     def update_data(self):
         # Re-read CSV file to get new data
         self.df = pd.read_csv(self.csv_file)
+            # Active profit (difference between the latest net worth and the initial net worth)
+        active_profit = self.trader.strat.total_profit
+        # Current networth
+        current_networth = self.trader.strat.networth
+        
+        # Update the info box label with both active profit and current networth
+        self.info_box_label.config(text=f"Active Profit: ${active_profit:.2f}\nCurrent Networth: ${current_networth:.2f}")
         self.plot_data()
 
     def update_timer(self):
@@ -269,6 +282,9 @@ class TradingApp:
         
         # Save the updated dataframe back to the CSV file
         filtered_df.to_csv(self.csv_file, index=False)
+
+    def flush_profit(self):
+        self.trader.strat.total_profit = 0
     
     def only_positive_numbers(self, input_value):
         """
