@@ -196,6 +196,7 @@ class run_Trader:
         csv_file = 'src/trade_log.csv'
         csv_mode = 'a'
         empty = True
+        self.active = True
 
 
         # Main strategy instance
@@ -237,4 +238,5 @@ class run_Trader:
         # input_thread.join()
 
     def run(self):
-        self.strat.process_data()
+        if self.active:
+            self.strat.process_data()

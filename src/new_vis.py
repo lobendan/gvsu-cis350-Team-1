@@ -200,10 +200,13 @@ class TradingApp:
         # Toggle between start and pause
         self.update_active = not self.update_active
         if self.update_active:
-            self.start_pause_button.config(text="Pause")
+            self.start_pause_button.config(text="Pause Autotrader")
             self.update_timer()
+            self.trader.active = True
         else:
-            self.start_pause_button.config(text="Start")
+            self.start_pause_button.config(text="Start Autotrader")
+            self.trader.active = False
+
 
     def open_long(self):
         self.trader.strat.manual_trade = 'open long'
