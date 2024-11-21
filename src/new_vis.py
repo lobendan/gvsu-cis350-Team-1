@@ -30,6 +30,8 @@ class TradingApp:
         self.df = pd.read_csv(csv_file)
         self.update_active = True  # Initially, the update is active
         self.trader = trader
+
+        self.validate_numeric = self.root.register(self.only_positive_numbers)
         
         # Setup plot area in Tkinter window
         self.fig, self.ax = plt.subplots(2, 2, figsize=(10, 8))
@@ -64,8 +66,27 @@ class TradingApp:
         self.flush_button = tk.Button(self.root, text="Flush History", fg="black", command=self.flush_history)
         self.flush_button.grid(row=4, column=0, padx=10, pady=10)
 
-        self.start_pause_button = tk.Button(self.root, text="Pause", fg="black", bg='lightgray', command=self.toggle_update)
+        self.start_pause_button = tk.Button(self.root, text="Pause Autotrader", fg="black", bg='lightgray', command=self.toggle_update)
         self.start_pause_button.grid(row=4, column=1, padx=10, pady=10)
+
+        self.deposit_label = tk.Label(self.root, text="Deposit Money:", bg='#2e2e2e')
+        self.deposit_label.grid(row=5, column=1, padx=10, pady=5)
+
+        self.deposit_input = tk.Entry(self.root, validate="key", validatecommand=(self.validate_numeric, '%P'), fg='black')
+        self.deposit_input.grid(row=5, column=2, padx=10, pady=5)
+
+        self.deposit_button = tk.Button(self.root, text="Confirm Deposit", fg="black", bg='lightblue', command=self.deposit_money)
+        self.deposit_button.grid(row=5, column=3, padx=10, pady=5)
+
+        self.withdraw_label = tk.Label(self.root, text="Withdraw Money:", bg='#2e2e2e')
+        self.withdraw_label.grid(row=6, column=1, padx=10, pady=5)
+
+        self.withdraw_input = tk.Entry(self.root, validate="key", validatecommand=(self.validate_numeric, '%P'), fg='black')
+        self.withdraw_input.grid(row=6, column=2, padx=10, pady=5)
+
+        self.withdraw_button = tk.Button(self.root, text="Confirm Withdrawal", fg="black", bg='lightblue', command=self.withdraw_money)
+        self.withdraw_button.grid(row=6, column=3, padx=10, pady=5)
+
         # Plot initial data
         self.plot_data()
 
@@ -165,7 +186,6 @@ class TradingApp:
         self.fig.subplots_adjust(hspace=.4)  # Adjust vertical spacing (increase the value for more space)
 
 
-
     def update_data(self):
         # Re-read CSV file to get new data
         self.df = pd.read_csv(self.csv_file)
@@ -194,6 +214,20 @@ class TradingApp:
     def close_trade(self):
         self.trader.strat.manual_trade = 'close trade'
 
+    def withdraw_money(self):
+        try:
+            amount = float(self.withdraw_input.get())
+            self.trader.strat.networth = self.trader.strat.networth - amount
+        except:
+            print('invalid input (withdrawing)')
+    
+    def deposit_money(self):
+        try:
+            amount = float(self.deposit_input.get())
+            self.trader.strat.networth = self.trader.strat.networth + amount
+        except:
+            print('invalid input (depositing)') 
+
     def flush_history(self):
         # Clear the data and reset the plots
         df = pd.read_csv(self.csv_file)
@@ -210,6 +244,16 @@ class TradingApp:
         
         # Save the updated dataframe back to the CSV file
         filtered_df.to_csv(self.csv_file, index=False)
+    
+    def only_positive_numbers(self, input_value):
+        """
+        Validation function to allow only positive numeric values.
+        """
+        if input_value == "" or input_value.isdigit():
+            return True  # Allow empty input (e.g., for clearing the field) or numbers
+        elif input_value.replace(".", "", 1).isdigit() and input_value.count('.') < 2:
+            return True  # Allow floating-point numbers
+        return False  # Reject other inputs
 
 
 # Background function for the trading backend
