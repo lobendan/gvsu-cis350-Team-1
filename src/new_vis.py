@@ -108,7 +108,7 @@ class TradingApp:
 
         # Rotate and format x-axis labels
         self.ax[0, 0].tick_params(axis='x', rotation=45)
-        self.ax[0, 0].xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d %H:%M'))
+        self.ax[0, 0].xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
 
         # Add a legend
         self.ax[0, 0].legend(loc='upper left', fontsize='small')
@@ -125,7 +125,7 @@ class TradingApp:
 
         # Rotate and format x-axis labels
         self.ax[0, 1].tick_params(axis='x', rotation=45)
-        self.ax[0, 1].xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d %H:%M'))
+        self.ax[0, 1].xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
         
         # Autoscale for the second subplot
         self.ax[0, 1].relim()
@@ -139,7 +139,7 @@ class TradingApp:
 
         # Rotate and format x-axis labels
         self.ax[1, 0].tick_params(axis='x', rotation=45)
-        self.ax[1, 0].xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d %H:%M'))
+        self.ax[1, 0].xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
 
         # Autoscale for the third subplot
         self.ax[1, 0].relim()
@@ -153,7 +153,7 @@ class TradingApp:
 
         # Rotate and format x-axis labels
         self.ax[1, 1].tick_params(axis='x', rotation=45)
-        self.ax[1, 1].xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d %H:%M'))
+        self.ax[1, 1].xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
 
         # Autoscale for the fourth subplot
         self.ax[1, 1].relim()
@@ -162,6 +162,7 @@ class TradingApp:
         # Apply tight layout and redraw canvas
         #self.fig.tight_layout()
         self.canvas.draw()
+        self.fig.subplots_adjust(hspace=.4)  # Adjust vertical spacing (increase the value for more space)
 
 
 
@@ -195,8 +196,20 @@ class TradingApp:
 
     def flush_history(self):
         # Clear the data and reset the plots
-        self.df = pd.DataFrame(columns=["timestamp", "price", "status", "short sma", "long sma", "profit since opening trade", "total profit"])
-        self.plot_data()
+        df = pd.read_csv(self.csv_file)
+    
+        # Check if the dataframe has enough rows
+        if len(df) < 2:
+            print("Error - Can't flush an empty log file.")
+            return
+        
+        last_row = df.iloc[[-1]]  # Retain only the last row of data
+
+        # Keep only the first and last rows
+        filtered_df = pd.DataFrame(last_row)
+        
+        # Save the updated dataframe back to the CSV file
+        filtered_df.to_csv(self.csv_file, index=False)
 
 
 # Background function for the trading backend
