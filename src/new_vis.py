@@ -16,6 +16,7 @@ from tkinter import Label
 
 
 
+
 # Define a class for monitoring file changes
 class FileWatcher(FileSystemEventHandler):
     def __init__(self, app):
@@ -39,6 +40,7 @@ class TradingApp:
         
         # Setup plot area in Tkinter window
         self.fig, self.ax = plt.subplots(2, 2, figsize=(10, 8))
+        plt.style.use('grayscale')
 
         # Set dark mode theme for the plot
         self.fig.patch.set_facecolor('#2e2e2e')  # Dark background for the figure
@@ -59,13 +61,13 @@ class TradingApp:
 
         # Buttons
         self.open_long = tk.Button(self.root, text="Open Long", fg="black", bg='lightgreen',command=self.open_long)
-        self.open_long.grid(row=4, column=2, padx=10, pady=10)
+        self.open_long.grid(row=2, column=1, padx=10, pady=10)
 
         self.open_short = tk.Button(self.root, text="Open Short", fg="black", bg='crimson', command=self.open_short)
-        self.open_short.grid(row=4, column=3, padx=10, pady=10)
+        self.open_short.grid(row=3, column=1, padx=10, pady=10)
 
         self.close_trade = tk.Button(self.root, text="Close Trade", fg="black", bg='coral', command=self.close_trade)
-        self.close_trade.grid(row=4, column=4, padx=10, pady=10)
+        self.close_trade.grid(row=4, column=1, padx=10, pady=10)
 
         self.flush_button = tk.Button(self.root, text="Flush History", fg="black", command=self.flush_history)
         self.flush_button.grid(row=4, column=0, padx=10, pady=10)
@@ -74,7 +76,7 @@ class TradingApp:
         self.flush_profit_button.grid(row=5, column=0, padx=10, pady=10)
 
         self.start_pause_button = tk.Button(self.root, text="Pause Autotrader", fg="black", bg='lightgray', command=self.toggle_update)
-        self.start_pause_button.grid(row=4, column=1, padx=10, pady=10)
+        self.start_pause_button.grid(row=6, column=0, padx=10, pady=10)
 
         self.deposit_label = tk.Label(self.root, text="Deposit Money:", bg='#2e2e2e')
         self.deposit_label.grid(row=5, column=1, padx=10, pady=5)
@@ -96,6 +98,28 @@ class TradingApp:
 
         self.info_box_label = tk.Label(self.root, text="Active Profit: $0.00\nCurrent Networth: $0.00", bg='#2e2e2e')
         self.info_box_label.grid(row=1, column=2, padx=10, pady=5)
+
+        # Stop Loss Margin
+        self.stop_loss_label = tk.Label(root, text="Stop Loss:", fg="black")
+        self.stop_loss_label.grid(row=3, column=2, padx=10, pady=5)
+
+        self.stop_loss_entry = tk.Entry(root, fg="black", validate="key", validatecommand=(self.validate_numeric, '%P'))
+        self.stop_loss_entry.insert(0, f"{self.trader.strat.stop_loss}")  # Replace with actual current value
+        self.stop_loss_entry.grid(row=3, column=3, padx=10, pady=5)
+
+        self.submit_stop_loss = tk.Button(root, text="Update", fg="black", command=self.update_stop_loss)
+        self.submit_stop_loss.grid(row=3, column=4, padx=10, pady=5)
+
+        # Take Profit Margin
+        self.take_profit_label = tk.Label(root, text="Take Profit:", fg="black")
+        self.take_profit_label.grid(row=2, column=2, padx=10, pady=5)
+
+        self.take_profit_entry = tk.Entry(root, fg="black", validate="key", validatecommand=(self.validate_numeric, '%P'))
+        self.take_profit_entry.insert(0, f"{self.trader.strat.take_profit}")  # Replace with actual current value
+        self.take_profit_entry.grid(row=2, column=3, padx=10, pady=5)
+
+        self.submit_take_profit = tk.Button(root, text="Update", fg="black", command=self.update_take_profit)
+        self.submit_take_profit.grid(row=2, column=4, padx=10, pady=5)
 
         # Plot initial data
         self.plot_data()
@@ -237,7 +261,7 @@ class TradingApp:
         logo_resized = logo.resize((522, 326))
         logo_tk = ImageTk.PhotoImage(logo_resized)
         # Create a Label widget and set the image as the label's image
-        logo_label = Label(self.root, image=logo_tk, bg='#2e2e2e')  # Set background color to match the window
+        logo_label = tk.Label(self.root, image=logo_tk, bg='#2e2e2e')  # Set background color to match the window
         logo_label.image = logo_tk  # Keep a reference to avoid garbage collection
         
         # Position the logo (you can change row and column based on your layout)
@@ -264,7 +288,21 @@ class TradingApp:
             amount = float(self.deposit_input.get())
             self.trader.strat.networth = self.trader.strat.networth + amount
         except:
-            print('invalid input (depositing)') 
+            print('invalid input (depositing)')
+
+    def update_take_profit(self):
+        try:
+            amount = float(self.take_profit_entry.get())
+            self.trader.strat.take_profit = amount
+        except:
+            print('invalid input (take profit)')
+
+    def update_stop_loss(self):
+        try:
+            amount = float(self.stop_loss_entry.get())
+            self.trader.strat.stop_loss = amount
+        except:
+            print('invalid input (stop loss)')
 
     def flush_history(self):
         # Clear the data and reset the plots
