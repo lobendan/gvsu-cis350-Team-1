@@ -24,8 +24,11 @@ class IndicatorData:
 
 # Manager class to handle indicator data and updates
 class IndicatorManager:
-    def __init__(self):
+    def __init__(self, price_key, ti_key):
         self.indicator_data = IndicatorData()
+        self.price_key = price_key
+        self.ti_key = ti_key
+
 
     def update_price(self, price_data):
         self.indicator_data.price = price_data["value"]
@@ -68,7 +71,7 @@ class IndicatorManager:
     def update_data(self):
         # Payload for getting live indicator data
         payload = {
-            "secret": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbHVlIjoiNjcwNTQ3YTEwOTlhYTMwMjViODBlOTdjIiwiaWF0IjoxNzI4Mzk5MjY1LCJleHAiOjMzMjMyODYzMjY1fQ.lU3WjVMVs5LS1ap8QN2IgxmqqxOlw87p3P0LtiME1j0",
+            "secret": self.ti_key,
             "construct": {
                 "exchange": "binance",
                 "symbol": "BTC/USDT",
@@ -85,7 +88,7 @@ class IndicatorManager:
 
         # Params for getting live price data
         params = {
-            "secret": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbHVlIjoiNjcxMTQzMmUwOTlhYTMwMjViNWRjMjgyIiwiaWF0IjoxNzI5MTg0NTU4LCJleHAiOjMzMjMzNjQ4NTU4fQ.RgqbtHeecIl1OhdWwfM-oKkW-xNnhAnCLvPN3cNMzIw",      
+            "secret": self.price_key,      
             "exchange": "binance",
             "symbol": "BTC/USDT",
             "interval": "1h"
@@ -94,7 +97,7 @@ class IndicatorManager:
         headers = {"Content-Type": "application/json"}
 
         # Create an instance of the IndicatorManager
-        indicator_manager = IndicatorManager()
+        indicator_manager = IndicatorManager(self.price_key, self.ti_key)
 
         
         # Get indicator data

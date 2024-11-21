@@ -310,8 +310,13 @@ def run_app():
     csv_file = "src/trade_log.csv"
     icon_path = Path(__file__).parent / 'logo.png'
     
+
+    #Fill these variables Brendan!
+    price_key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbHVlIjoiNjcwNTQ3YTEwOTlhYTMwMjViODBlOTdjIiwiaWF0IjoxNzI4Mzk5MjY1LCJleHAiOjMzMjMyODYzMjY1fQ.lU3WjVMVs5LS1ap8QN2IgxmqqxOlw87p3P0LtiME1j0"
+    ti_key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbHVlIjoiNjcxMTQzMmUwOTlhYTMwMjViNWRjMjgyIiwiaWF0IjoxNzI5MTg0NTU4LCJleHAiOjMzMjMzNjQ4NTU4fQ.RgqbtHeecIl1OhdWwfM-oKkW-xNnhAnCLvPN3cNMzIw"
+
     # Start the backend in a separate thread
-    trader = run_Trader()
+    trader = run_Trader(price_key, ti_key)
     backend_thread = threading.Thread(target=run_backend, args=(trader,), daemon=True)
     backend_thread.start()
 

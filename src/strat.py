@@ -23,11 +23,11 @@ def log_trade(action, price, short_sma, long_sma, current_profit, total_profit, 
 
 # Simulated function for receiving SMA values from an external class
 class PriceDataProvider:
-    def __init__(self):
+    def __init__(self, price_key, ti_key):
         self.price = None
         self.short_sma = None
         self.long_sma = None
-        self.live_data = IndicatorManager()
+        self.live_data = IndicatorManager(price_key, ti_key)
         
     def get_price_and_sma(self):
         data = self.live_data.update_data()
@@ -37,7 +37,7 @@ class PriceDataProvider:
         return self.price, self.short_sma, self.long_sma
 
 class strategy:
-    def __init__(self):    
+    def __init__(self, price_key, ti_key):    
         self.opened_trade_price = 0
         self.opened_trade_type = ""
         self.total_profit = 0
@@ -49,7 +49,7 @@ class strategy:
         self.stop_loss = 50  # in $
         self.take_profit = 100  # in $
 
-        self.price_data_provider = PriceDataProvider()
+        self.price_data_provider = PriceDataProvider(price_key, ti_key)
 
         self.current_bar_index = 0
         self.last_higher = ""
@@ -190,7 +190,7 @@ def manual_input_listener(strat):
 
 
 class run_Trader: 
-    def __init__(self):
+    def __init__(self, price_key, ti_key):
         #csv vars
         csv_file = 'src/trade_log.csv'
         csv_mode = 'a'
@@ -199,7 +199,7 @@ class run_Trader:
 
 
         # Main strategy instance
-        self.strat = strategy()
+        self.strat = strategy(price_key, ti_key)
 
         #if the file already exists make sure the header doesn't get added again and get total profit
         if os.path.exists(csv_file) and os.path.getsize(csv_file) > 0:
