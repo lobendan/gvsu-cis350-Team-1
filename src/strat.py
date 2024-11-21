@@ -80,7 +80,7 @@ class strategy:
             self.manual_trade = ""
             
         elif self.manual_trade == "close trade":
-            self.close_trade("manual", "", price, short_sma, long_sma) #leave reason empty as the reason is manual (which is already known)
+            self.close_trade(self.opened_trade_type, "", price, short_sma, long_sma) #leave reason empty as the reason is manual (which is already known)
             self.manual_trade = ""
 
         # Automated Trade Logic (open trades)

@@ -317,7 +317,7 @@ def run_app():
 
     # Start the frontend
     root = tk.Tk()
-    root.title("Trading Data Visualizer")
+    root.title("AutoTrader")
     icon_image = tk.PhotoImage(file=icon_path)  # Replace with your image file path
     root.iconphoto(True, icon_image)
 
