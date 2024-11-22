@@ -62,13 +62,15 @@ class TradingApp:
         # Buttons
         self.open_long = tk.Button(self.root, text="Open Long", fg="black", bg='lightgreen',command=self.open_long)
         self.open_long.grid(row=2, column=1, padx=10, pady=10, sticky='w')
-        self.open_long.config(font=("Helvetica", 12, "bold"), fg="black", bg="green")
+        self.open_long.config(font=("Helvetica", 13, "bold"), fg="black", bg="lightgreen")
 
         self.open_short = tk.Button(self.root, text="Open Short", fg="black", bg='crimson', command=self.open_short)
         self.open_short.grid(row=3, column=1, padx=10, pady=10, sticky = 'w')
+        self.open_short.config(font=("Helvetica", 13, "bold"), fg="black", bg="crimson")
 
         self.close_trade = tk.Button(self.root, text="Close Trade", fg="black", bg='coral', command=self.close_trade)
         self.close_trade.grid(row=4, column=1, padx=10, pady=10, sticky = 'w')
+        self.close_trade.config(font=("Helvetica", 13, "bold"), fg="black", bg="coral")
 
         self.flush_button = tk.Button(self.root, text="Flush History", fg="black", command=self.flush_history)
         self.flush_button.grid(row=4, column=0, padx=10, pady=10)
@@ -79,7 +81,7 @@ class TradingApp:
         self.start_pause_button = tk.Button(self.root, text="Pause Autotrader", fg="black", bg='lightgray', command=self.toggle_update)
         self.start_pause_button.grid(row=6, column=0, padx=10, pady=10)
 
-        self.deposit_label = tk.Label(self.root, text="Deposit Money:", bg='#2e2e2e')
+        self.deposit_label = tk.Label(self.root, text="Deposit Money:", fg="black")
         self.deposit_label.grid(row=5, column=2, padx=10, pady=10, sticky = 'e')
 
         self.deposit_input = tk.Entry(self.root, validate="key", validatecommand=(self.validate_numeric, '%P'), fg='black')
@@ -88,7 +90,7 @@ class TradingApp:
         self.deposit_button = tk.Button(self.root, text="Deposit", fg="black", bg='lightblue', command=self.deposit_money)
         self.deposit_button.grid(row=5, column=4, padx=10, pady=10, sticky = 'w')
 
-        self.withdraw_label = tk.Label(self.root, text="Withdraw Money:", bg='#2e2e2e')
+        self.withdraw_label = tk.Label(self.root, text="Withdraw Money:", fg="black")
         self.withdraw_label.grid(row=6, column=2, padx=10, pady=10, sticky = 'e')
 
         self.withdraw_input = tk.Entry(self.root, validate="key", validatecommand=(self.validate_numeric, '%P'), fg='black')
@@ -99,6 +101,11 @@ class TradingApp:
 
         self.info_box_label = tk.Label(self.root, text="Active Profit: $0.00\nCurrent Networth: $0.00\nCurrent Position: $0.00", bg='#2e2e2e')
         self.info_box_label.grid(row=1, column=2, padx=10, pady=10, sticky='n')
+        self.info_box_label.config(font=("Helvetica", 13))
+
+        self.action_box = tk.Label(self.root, text="AutoTrader has been started successfully...", bg='#2e2e2e')
+        self.action_box.grid(row=7, column=0, padx=10, pady=10, sticky='e')
+        self.action_box.config(font=("Helvetica", 13))
 
         # Stop Loss Margin
         self.stop_loss_label = tk.Label(root, text="Stop Loss:", fg="black")
@@ -250,7 +257,7 @@ class TradingApp:
         # Update the info box label with both active profit and current networth
         self.info_box_label.config(text=f"Active Profit: ${active_profit:.2f}\nCurrent Networth: ${current_networth:.2f}\nCurrent Position: ${current_position:.2f}")
         self.plot_data()
-
+        
     def update_timer(self):
         if self.update_active:
             self.update_data()
@@ -260,11 +267,11 @@ class TradingApp:
         # Toggle between start and pause
         self.update_active = not self.update_active
         if self.update_active:
-            self.start_pause_button.config(text="Pause Autotrader")
+            self.start_pause_button.config(text="Pause AutoTrader")
             self.update_timer()
             self.trader.active = True
         else:
-            self.start_pause_button.config(text="Start Autotrader")
+            self.start_pause_button.config(text="Start AutoTrader")
             self.trader.active = False
 
     def add_logo(self):
@@ -281,41 +288,65 @@ class TradingApp:
         logo_label.grid(row=0, column=2, padx=7, pady=7)  # Adjust position as needed
 
     def open_long(self):
-        self.trader.strat.manual_trade = 'open long'
+        if self.trader.strat.active_trades_amnt < self.trader.strat.parallel_trades_amnt:
+            self.action_box.config(text=f"A long trade is trying to be been opened!")
+            self.trader.strat.manual_trade = 'open long'
+        
+        else:
+            self.action_box.config(text=f"The maximum amount of open trades has been reached!")
 
     def open_short(self):
-        self.trader.strat.manual_trade = 'open short'
+        if self.trader.strat.active_trades_amnt < self.trader.strat.parallel_trades_amnt:
+            self.action_box.config(text=f"A short trade is trying to be been opened!")
+            self.trader.strat.manual_trade = 'open short'
+        
+        else:
+            self.action_box.config(text=f"The maximum amount of open trades has been reached!")
 
     def close_trade(self):
-        self.trader.strat.manual_trade = 'close trade'
+        
+        if self.trader.strat.active_trades_amnt > 0:
+            self.action_box.config(text=f"A trade is trying to be closed!")
+            self.trader.strat.manual_trade = 'close trade'
+        
+        else:
+            self.action_box.config(text=f"There are no active trades that can be closed...")
 
     def withdraw_money(self):
         try:
             amount = float(self.withdraw_input.get())
             self.trader.strat.networth = self.trader.strat.networth - amount
+            self.action_box.config(text=f"${amount} have been withdrawn...")
         except:
             print('invalid input (withdrawing)')
+            self.action_box.config(text=f"invalid input (withdrawing)")
     
     def deposit_money(self):
         try:
             amount = float(self.deposit_input.get())
             self.trader.strat.networth = self.trader.strat.networth + amount
+            self.action_box.config(text=f"${amount} have been deposited...")
         except:
             print('invalid input (depositing)')
+            self.action_box.config(text=f"invalid input (depositing)")
 
     def update_take_profit(self):
         try:
             amount = float(self.take_profit_entry.get())
             self.trader.strat.take_profit = amount
+            self.action_box.config(text=f"The take profit margin has been updated to ${amount}!")
         except:
             print('invalid input (take profit)')
+            self.action_box.config(text=f"invalid input (take profit)")
 
     def update_stop_loss(self):
         try:
             amount = float(self.stop_loss_entry.get())
             self.trader.strat.stop_loss = amount
+            self.action_box.config(text=f"The stop loss margin has been updated to ${amount}!")
         except:
             print('invalid input (stop loss)')
+            self.action_box.config(text=f"invalid input (stop loss)")
 
     def update_leverage(self):
         try:
@@ -323,11 +354,14 @@ class TradingApp:
             
             if self.trader.strat.active_trades_amnt > 0:
                 print("leverage can't be changed while trades are open")
+                self.action_box.config(text=f"leverage can't be changed while trades are open...")
 
             else:
                 self.trader.strat.leverage = amount
+                self.action_box.config(text=f"The leverage has been updated to {amount}!")
         except:
             print('invalid input (leverage)')
+            self.action_box.config(text=f"invalid input (leverage)")
     
 
     def flush_history(self):
@@ -337,6 +371,7 @@ class TradingApp:
         # Check if the dataframe has enough rows
         if len(df) < 2:
             print("Error - Can't flush an empty log file.")
+            self.action_box.config(text=f"Error - Can't flush an empty log file.")
             return
         
         last_row = df.iloc[[-1]]  # Retain only the last row of data
@@ -346,9 +381,11 @@ class TradingApp:
         
         # Save the updated dataframe back to the CSV file
         filtered_df.to_csv(self.csv_file, index=False)
+        self.action_box.config(text=f"The history has been flushed!")
 
     def flush_profit(self):
         self.trader.strat.total_profit = 0
+        self.action_box.config(text=f"The profit session has been reset!")
     
     def only_positive_numbers(self, input_value):
         """
