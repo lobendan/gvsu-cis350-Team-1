@@ -49,6 +49,8 @@ class strategy:
         self.stop_loss = 50  # in $
         self.take_profit = 100  # in $
 
+        self.profit = 0
+
         self.price_data_provider = PriceDataProvider(price_key, ti_key)
 
         self.current_bar_index = 0
@@ -120,19 +122,22 @@ class strategy:
         self.notify(trade_type, "opened", 0)
 
     def close_trade(self, trade_type, close_reason, price, short_sma, long_sma):
-        profit = (price - self.opened_trade_price) * self.leverage if trade_type == "long" else (self.opened_trade_price - price) * self.leverage
-        self.total_profit += profit
-        self.networth += profit
-        log_trade(f"Close {trade_type.capitalize()} Trade {close_reason}", price, short_sma, long_sma, profit, self.total_profit, self.networth, self.leverage)
+        self.profit = (price - self.opened_trade_price) * self.leverage if trade_type == "long" else (self.opened_trade_price - price) * self.leverage
+        self.total_profit += self.profit
+        self.networth += self.profit
+        log_trade(f"Close {trade_type.capitalize()} Trade {close_reason}", price, short_sma, long_sma, self.profit, self.total_profit, self.networth, self.leverage)
         self.active_trades_amnt -= 1
-        self.notify(trade_type, "closed", profit)
+        self.notify(trade_type, "closed", self.profit)
 
     def log_active_status(self, price, short_sma, long_sma):
         if self.active_trades_amnt > 0 and self.opened_trade_type == "long":
-            log_trade("active", price, short_sma, long_sma, (price - self.opened_trade_price)*self.leverage, self.total_profit, self.networth, self.leverage)
+            self.profit = (price - self.opened_trade_price)*self.leverage
+            log_trade("active", price, short_sma, long_sma, self.profit, self.total_profit, self.networth, self.leverage)
         elif self.active_trades_amnt > 0 and self.opened_trade_type == "short":
-            log_trade("active", price, short_sma, long_sma, (self.opened_trade_price - price)*self.leverage, self.total_profit, self.networth, self.leverage)
+            self.profit = (self.opened_trade_price - price)*self.leverage
+            log_trade("active", price, short_sma, long_sma, self.profit, self.total_profit, self.networth, self.leverage)
         else:
+            self.profit = 0
             log_trade("idle", price, short_sma, long_sma, 0, self.total_profit, self.networth, self.leverage)
 
     def notify(self, longshort, openclose, profit):

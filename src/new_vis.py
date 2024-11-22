@@ -61,13 +61,14 @@ class TradingApp:
 
         # Buttons
         self.open_long = tk.Button(self.root, text="Open Long", fg="black", bg='lightgreen',command=self.open_long)
-        self.open_long.grid(row=2, column=1, padx=10, pady=10)
+        self.open_long.grid(row=2, column=1, padx=10, pady=10, sticky='w')
+        self.open_long.config(font=("Helvetica", 12, "bold"), fg="black", bg="green")
 
         self.open_short = tk.Button(self.root, text="Open Short", fg="black", bg='crimson', command=self.open_short)
-        self.open_short.grid(row=3, column=1, padx=10, pady=10)
+        self.open_short.grid(row=3, column=1, padx=10, pady=10, sticky = 'w')
 
         self.close_trade = tk.Button(self.root, text="Close Trade", fg="black", bg='coral', command=self.close_trade)
-        self.close_trade.grid(row=4, column=1, padx=10, pady=10)
+        self.close_trade.grid(row=4, column=1, padx=10, pady=10, sticky = 'w')
 
         self.flush_button = tk.Button(self.root, text="Flush History", fg="black", command=self.flush_history)
         self.flush_button.grid(row=4, column=0, padx=10, pady=10)
@@ -79,58 +80,58 @@ class TradingApp:
         self.start_pause_button.grid(row=6, column=0, padx=10, pady=10)
 
         self.deposit_label = tk.Label(self.root, text="Deposit Money:", bg='#2e2e2e')
-        self.deposit_label.grid(row=5, column=1, padx=10, pady=5)
+        self.deposit_label.grid(row=5, column=2, padx=10, pady=10, sticky = 'e')
 
         self.deposit_input = tk.Entry(self.root, validate="key", validatecommand=(self.validate_numeric, '%P'), fg='black')
-        self.deposit_input.grid(row=5, column=2, padx=10, pady=5)
+        self.deposit_input.grid(row=5, column=3, padx=10, pady=10, sticky = 'e')
 
-        self.deposit_button = tk.Button(self.root, text="Confirm Deposit", fg="black", bg='lightblue', command=self.deposit_money)
-        self.deposit_button.grid(row=5, column=3, padx=10, pady=5)
+        self.deposit_button = tk.Button(self.root, text="Deposit", fg="black", bg='lightblue', command=self.deposit_money)
+        self.deposit_button.grid(row=5, column=4, padx=10, pady=10, sticky = 'w')
 
         self.withdraw_label = tk.Label(self.root, text="Withdraw Money:", bg='#2e2e2e')
-        self.withdraw_label.grid(row=6, column=1, padx=10, pady=5)
+        self.withdraw_label.grid(row=6, column=2, padx=10, pady=10, sticky = 'e')
 
         self.withdraw_input = tk.Entry(self.root, validate="key", validatecommand=(self.validate_numeric, '%P'), fg='black')
-        self.withdraw_input.grid(row=6, column=2, padx=10, pady=5)
+        self.withdraw_input.grid(row=6, column=3, padx=10, pady=10, sticky = 'e')
 
-        self.withdraw_button = tk.Button(self.root, text="Confirm Withdrawal", fg="black", bg='lightblue', command=self.withdraw_money)
-        self.withdraw_button.grid(row=6, column=3, padx=10, pady=5)
+        self.withdraw_button = tk.Button(self.root, text="Withdraw", fg="black", bg='lightblue', command=self.withdraw_money)
+        self.withdraw_button.grid(row=6, column=4, padx=10, pady=10, sticky = 'w')
 
-        self.info_box_label = tk.Label(self.root, text="Active Profit: $0.00\nCurrent Networth: $0.00", bg='#2e2e2e')
-        self.info_box_label.grid(row=1, column=2, padx=10, pady=5)
+        self.info_box_label = tk.Label(self.root, text="Active Profit: $0.00\nCurrent Networth: $0.00\nCurrent Position: $0.00", bg='#2e2e2e')
+        self.info_box_label.grid(row=1, column=2, padx=10, pady=10, sticky='n')
 
         # Stop Loss Margin
         self.stop_loss_label = tk.Label(root, text="Stop Loss:", fg="black")
-        self.stop_loss_label.grid(row=3, column=2, padx=10, pady=5)
+        self.stop_loss_label.grid(row=3, column=2, padx=10, pady=10, sticky = 'e')
 
         self.stop_loss_entry = tk.Entry(root, fg="black", validate="key", validatecommand=(self.validate_numeric, '%P'))
         self.stop_loss_entry.insert(0, f"{self.trader.strat.stop_loss}")  # Replace with actual current value
-        self.stop_loss_entry.grid(row=3, column=3, padx=10, pady=5)
+        self.stop_loss_entry.grid(row=3, column=3, padx=10, pady=10, sticky = 'w')
 
         self.submit_stop_loss = tk.Button(root, text="Update", fg="black", command=self.update_stop_loss)
-        self.submit_stop_loss.grid(row=3, column=4, padx=10, pady=5)
+        self.submit_stop_loss.grid(row=3, column=4, padx=10, pady=10, sticky = 'w')
 
         # Take Profit Margin
         self.take_profit_label = tk.Label(root, text="Take Profit:", fg="black")
-        self.take_profit_label.grid(row=2, column=2, padx=10, pady=5)
+        self.take_profit_label.grid(row=2, column=2, padx=10, pady=10, sticky = 'e')
 
         self.take_profit_entry = tk.Entry(root, fg="black", validate="key", validatecommand=(self.validate_numeric, '%P'))
         self.take_profit_entry.insert(0, f"{self.trader.strat.take_profit}")  # Replace with actual current value
-        self.take_profit_entry.grid(row=2, column=3, padx=10, pady=5)
+        self.take_profit_entry.grid(row=2, column=3, padx=10, pady=10, sticky = 'w')
 
         self.submit_take_profit = tk.Button(root, text="Update", fg="black", command=self.update_take_profit)
-        self.submit_take_profit.grid(row=2, column=4, padx=10, pady=5)
+        self.submit_take_profit.grid(row=2, column=4, padx=10, pady=10, sticky = 'w')
 
         # Leverage
         self.leverage_label = tk.Label(root, text="Leverage:", fg="black")
-        self.leverage_label.grid(row=4, column=2, padx=10, pady=5)
+        self.leverage_label.grid(row=4, column=2, padx=10, pady=10, sticky = 'e')
 
         self.leverage_entry = tk.Entry(root, fg="black", validate="key", validatecommand=(self.validate_numeric, '%P'))
         self.leverage_entry.insert(0, f"{self.trader.strat.leverage}")  # Replace with actual current value
-        self.leverage_entry.grid(row=4, column=3, padx=10, pady=5)
+        self.leverage_entry.grid(row=4, column=3, padx=10, pady=10, sticky = 'w')
 
         self.submit_leverage = tk.Button(root, text="Update", fg="black", command=self.update_leverage)
-        self.submit_leverage.grid(row=4, column=4, padx=10, pady=5)
+        self.submit_leverage.grid(row=4, column=4, padx=10, pady=10, sticky = 'w')
 
         # Plot initial data
         self.plot_data()
@@ -244,9 +245,11 @@ class TradingApp:
         active_profit = self.trader.strat.total_profit
         # Current networth
         current_networth = self.trader.strat.networth
+
+        current_position = self.trader.strat.profit
         
         # Update the info box label with both active profit and current networth
-        self.info_box_label.config(text=f"Active Profit: ${active_profit:.2f}\nCurrent Networth: ${current_networth:.2f}")
+        self.info_box_label.config(text=f"Active Profit: ${active_profit:.2f}\nCurrent Networth: ${current_networth:.2f}\nCurrent Position: ${current_position:.2f}")
         self.plot_data()
 
     def update_timer(self):
