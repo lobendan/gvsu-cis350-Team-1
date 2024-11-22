@@ -241,11 +241,10 @@ class TradingApp:
     def update_data(self):
         # Re-read CSV file to get new data
         self.df = pd.read_csv(self.csv_file)
-            # Active profit (difference between the latest net worth and the initial net worth)
-        active_profit = self.trader.strat.total_profit
-        # Current networth
-        current_networth = self.trader.strat.networth
 
+        #get data from backend for text output
+        active_profit = self.trader.strat.total_profit
+        current_networth = self.trader.strat.networth
         current_position = self.trader.strat.profit
         
         # Update the info box label with both active profit and current networth
@@ -321,9 +320,15 @@ class TradingApp:
     def update_leverage(self):
         try:
             amount = float(self.leverage_entry.get())
-            self.trader.strat.leverage = amount
+            
+            if self.trader.strat.active_trades_amnt > 0:
+                print("leverage can't be changed while trades are open")
+
+            else:
+                self.trader.strat.leverage = amount
         except:
-            print('invalid input (position size)')
+            print('invalid input (leverage)')
+    
 
     def flush_history(self):
         # Clear the data and reset the plots

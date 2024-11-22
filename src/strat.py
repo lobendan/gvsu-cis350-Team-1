@@ -94,19 +94,19 @@ class strategy:
             self.open_trade("short", price, short_sma, long_sma)
 
         # Automated Trade Logic (close trades)
-        elif self.active_trades_amnt > 0 and self.opened_trade_type == "long" and price >= (self.opened_trade_price + self.take_profit) * self.leverage:
+        elif self.active_trades_amnt > 0 and self.opened_trade_type == "long" and price * self.leverage >= self.opened_trade_price * self.leverage + self.take_profit:
             self.close_trade("long", "(TP)", price, short_sma, long_sma)
             self.manual_trade = ""
             
-        elif self.active_trades_amnt > 0 and self.opened_trade_type == "long" and price <= (self.opened_trade_price - self.stop_loss) * self.leverage:
+        elif self.active_trades_amnt > 0 and self.opened_trade_type == "long" and price * self.leverage <= self.opened_trade_price * self.leverage - self.stop_loss:
             self.close_trade("long", "(SL)", price, short_sma, long_sma)
             self.manual_trade = ""
 
-        elif self.active_trades_amnt > 0 and self.opened_trade_type == "short" and price <= (self.opened_trade_price - self.take_profit) * self.leverage:
+        elif self.active_trades_amnt > 0 and self.opened_trade_type == "short" and price * self.leverage <= self.opened_trade_price * self.leverage - self.take_profit:
             self.close_trade("short", "(TP)", price, short_sma, long_sma)
             self.manual_trade = ""
 
-        elif self.active_trades_amnt > 0 and self.opened_trade_type == "short" and price >= (self.opened_trade_price + self.stop_loss) * self.leverage:
+        elif self.active_trades_amnt > 0 and self.opened_trade_type == "short" and price * self.leverage >= self.opened_trade_price * self.leverage + self.stop_loss:
             self.close_trade("short", "(SL)", price, short_sma, long_sma)
             self.manual_trade = ""
         
