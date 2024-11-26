@@ -12,10 +12,38 @@ import time
 from strat import run_Trader
 from pathlib import Path
 from PIL import Image, ImageTk
-from tkinter import Label
+from tkinter import Label, ttk
 
-
-
+# Pre-launch popup window
+class PreLaunchWindow:
+    def __init__(self, master):
+        self.master = master
+        self.master.title("Launch Settings")
+        self.master.geometry("325x150")
+        
+        # Set up labels and text entries
+        self.label1 = tk.Label(self.master, text="API Key 1:")
+        self.label1.grid(row=0, column=0, padx=10, pady=10)
+        self.entry1 = tk.Entry(self.master, width=30)
+        self.entry1.grid(row=0, column=1, padx=10, pady=10)
+        
+        self.label2 = tk.Label(self.master, text="API Key 2:")
+        self.label2.grid(row=1, column=0, padx=10, pady=10)
+        self.entry2 = tk.Entry(self.master, width=30)
+        self.entry2.grid(row=1, column=1, padx=10, pady=10)
+        
+        # Launch button
+        self.launch_button = tk.Button(self.master, text="Launch App", command=self.on_launch)
+        self.launch_button.grid(row=2, column=0, columnspan=2, pady=10)
+        
+        self.api_keys = None
+    
+    def on_launch(self):
+        key1 = self.entry1.get()
+        key2 = self.entry2.get()
+        if key1 and key2:
+            self.api_keys = (key1, key2)
+            self.master.destroy()
 
 # Define a class for monitoring file changes
 class FileWatcher(FileSystemEventHandler):
@@ -25,7 +53,6 @@ class FileWatcher(FileSystemEventHandler):
     def on_modified(self, event):
         if event.src_path.endswith(".csv"):
             self.app.update_data()
-
 
 # Define the main application
 class TradingApp:
@@ -244,7 +271,6 @@ class TradingApp:
             self.canvas.draw()    
             self.fig.subplots_adjust(hspace=.4)  # Adjust vertical spacing (increase the value for more space)
 
-
     def update_data(self):
         # Re-read CSV file to get new data
         self.df = pd.read_csv(self.csv_file)
@@ -397,24 +423,28 @@ class TradingApp:
             return True  # Allow floating-point numbers
         return False  # Reject other inputs
 
-
 # Background function for the trading backend
 def run_backend(trader):
     while True:
         trader.run()
         time.sleep(15)  # Adjust the update frequency as needed
 
-
 # Main Tkinter GUI setup
 def run_app():
+    # Show the pre-launch window to collect API keys
+    pre_launch_root = tk.Tk()
+    pre_launch_window = PreLaunchWindow(pre_launch_root)
+    pre_launch_root.mainloop()
+
+    if pre_launch_window.api_keys is None:
+        return  # Exit if the launch is cancelled
+
     # File path to your CSV
     csv_file = "src/trade_log.csv"
     icon_path = Path(__file__).parent / 'logo.png'
     
-
-    #Fill these variables Brendan!
-    price_key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbHVlIjoiNjcwNTQ3YTEwOTlhYTMwMjViODBlOTdjIiwiaWF0IjoxNzI4Mzk5MjY1LCJleHAiOjMzMjMyODYzMjY1fQ.lU3WjVMVs5LS1ap8QN2IgxmqqxOlw87p3P0LtiME1j0"
-    ti_key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbHVlIjoiNjcxMTQzMmUwOTlhYTMwMjViNWRjMjgyIiwiaWF0IjoxNzI5MTg0NTU4LCJleHAiOjMzMjMzNjQ4NTU4fQ.RgqbtHeecIl1OhdWwfM-oKkW-xNnhAnCLvPN3cNMzIw"
+    # Retrieve API keys from pre-launch window
+    price_key, ti_key = pre_launch_window.api_keys
 
     # Start the backend in a separate thread
     trader = run_Trader(price_key, ti_key)
@@ -427,7 +457,6 @@ def run_app():
     icon_image = tk.PhotoImage(file=icon_path)  # Replace with your image file path
     root.iconphoto(True, icon_image)
 
-
     screen_width = root.winfo_screenwidth()
     screen_height = root.winfo_screenheight()
 
@@ -435,7 +464,6 @@ def run_app():
     root.geometry(f"{screen_width}x{screen_height}+0+0")
     app = TradingApp(root, csv_file, trader)
     root.mainloop()
-
 
 if __name__ == "__main__":
     run_app()
