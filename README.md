@@ -19,7 +19,6 @@ Developing an auto trader
 - run ```pip install -r [path/to/requirements.txt file]``` in the terminal to make sure all prerequisites are met
 
 ## Run Instructions
-1. go to src/strat.py and press F5 or start / debug manually
-2. Autotrader is no simulating, you can manually open and close trades by following the instructions in the Terminal
-3. The output will be documented in src/trade_log.csv
-
+1. go to src/new_vis.py and press F5 or start / debug manually
+2. Enter 2 valid taapi API keys in the first screen (the order does not matter)
+3. Autotrader is now simulating
