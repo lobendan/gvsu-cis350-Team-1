@@ -93,6 +93,6 @@ linked to> |
 
 * [Use Case Diagram](Usecase.pdf)
 
-* [Class Diagram]()
+* [Class Diagram](UMLclassDiagram.pdf)
 
 * [Object Diagram](ObjectDiagram.pdf)
