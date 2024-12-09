@@ -90,3 +90,9 @@ linked to> |
 * [Gantt Chart](CIS350-Team-1-Gantt.pdf) 
 
 * [Final Presentation](CIS350_Auto_Trader_Final_Team1.pdf)
+
+* [Use Case Diagram](Usecase.pdf)
+
+* [Class Diagram]()
+
+* [Object Diagram](ObjectDiagram.pdf)
