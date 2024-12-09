@@ -56,8 +56,9 @@ This section provides the functional and non-functional requirements of the Auto
 | NFR13 | The UI shall allow the user to decide how much of an asset they want to purchase or sell | TBD |
 | NFR14 | All interactive elements shall provide immediate feedback on activation. | TBD |
 | NFR15 | The UI shall provide clear visual indicators for successful or failed trade execution. | TBD |
+
 # Test Specification (if added)
-<Description of what this section is>
+<This section defines the testing strategy, methods, and criteria used to ensure the functionality, reliability, and performance of the auto trader application. It describes the planned test cases, their purpose, and how they validate the system against the specified requirements.>
 ## Unit tests
 (copy/paste the below table a minimum of 4 times)
 | ID | Description | Steps | Input Values | Expected Output | Actual Output
@@ -76,5 +77,16 @@ linked to> |
 (copy/paste the above table a minimum of 3 times)
 
 # Software Artifacts
-<Describe the purpose of this section>
-* [I am a link](to_some_file.pdf)
+<Key deliverables and components produced and used throughout the development of the project>
+
+* [Use Case Lucidchart](https://lucid.app/lucidchart/4526676c-834a-4f2b-8cfa-a9dc2e0721cd/edit?viewport_loc=-653%2C136%2C3354%2C1379%2C.Q4MUjXso07N&invitationId=inv_3f43ef50-38d6-4c75-a037-401fbb2b5d55)
+
+* [Idea Doc](https://docs.google.com/document/d/1d3P0VOt5sV0tdv9Wqa1Ne2ZHNL_9CU0AVL8GTHbeNXE/edit?usp=sharing)
+
+* [Trello Board](https://trello.com/b/0UfcR0VN/gvsu-cis350-team-1)
+
+* [Prototype GUI](https://discoursemap.retool.com/apps/a8ea5b26-8745-11ef-9a25-5bbe01d66544/Team-1---Auto-Trader-Prorotype-GUI)
+
+* [Gantt Chart](CIS350-Team-1-Gantt.pdf) 
+
+* [Final Presentation](CIS350_Auto_Trader_Final_Team1.pdf)
