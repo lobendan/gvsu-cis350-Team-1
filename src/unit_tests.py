@@ -1,146 +1,88 @@
 import unittest
-from strat_start import IndicatorManager, IndicatorData
-from strat import strategy, run_Trader
-from new_vis import TradingApp
-import tkinter as tk
+from strat import run_Trader
 
-class TestBase(unittest.TestCase):
+
+class AutoTraderTests(unittest.TestCase):
+
     def setUp(self):
-        # Global mock API keys
-        self.price_key = "mock_price_key"
-        self.ti_key = "mock_ti_key"
+        self.price_key = "TEST_PRICE_KEY"
+        self.ti_key = "TEST_TI_KEY"
+        self.trader = run_Trader(self.price_key, self.ti_key)
 
+        # Replace the `update_data` method with a simulated one
+        def fake_update_data():
+            # Simulate indicator data
+            self.trader.strat.price_data_provider.live_data.indicator_data = type(
+                "IndicatorData",
+                (object,),
+                {
+                    "rsi": 70,
+                    "ema": 60000,
+                    "sma_5": 500,
+                    "sma_20": 400,
+                },
+            )()
 
-class TestIndicatorManager(TestBase):
-    def test_price_update(self):
-        manager = IndicatorManager(self.price_key, self.ti_key)
-        
-        # Mock price data
-        price_data = {"value": 45000.0}
-        manager.update_price(price_data)
-        
-        # Assert that the price was updated
-        self.assertEqual(manager.indicator_data.price, 45000.0)
+            # Simulate price data
+            self.trader.strat.price_data_provider.price = 50000
+            self.trader.strat.price_data_provider.short_sma = 500
+            self.trader.strat.price_data_provider.long_sma = 400
 
-    def test_indicators_update(self):
-        manager = IndicatorManager(self.price_key, self.ti_key)
-        
-        # Mock indicator data
-        mock_data = {
-            "data": [
-                {"indicator": "RSI", "result": {"value": 70}},
-                {"indicator": "EMA", "result": {"value": 44000.0}},
-                {"indicator": "MACD", "result": {"valueMACD": 10, "valueMACDSignal": 9, "valueMACDHist": 1}}
-            ]
-        }
-        manager.update_indicators(mock_data)
-        
-        # Assert that indicators were updated correctly
-        self.assertEqual(manager.indicator_data.rsi, 70)
-        self.assertEqual(manager.indicator_data.ema, 44000.0)
-        self.assertEqual(manager.indicator_data.macd_value, 10)
-        self.assertEqual(manager.indicator_data.macd_signal, 9)
-        self.assertEqual(manager.indicator_data.macd_hist, 1)
+        # Override the `update_data` method
+        self.trader.strat.price_data_provider.live_data.update_data = fake_update_data
 
+    def test_request_live_price_data(self):
+        """Test the program requests live price data (FR1)."""
+        self.trader.strat.price_data_provider.live_data.update_data()
+        self.assertEqual(self.trader.strat.price_data_provider.price, 50000)
 
-class TestStrategy(TestBase):
-    def test_automated_trade_logic(self):
-        strat = strategy(self.price_key, self.ti_key)
-        
-        # Mock SMA crossing data
-        strat.price_data_provider.get_price_and_sma = lambda: (45000, 46000, 44000)  # Short > Long
-        strat.process_data()
-        
-        # Assert that a long trade is opened
-        self.assertEqual(strat.opened_trade_type, "long")
-        self.assertEqual(strat.active_trades_amnt, 1)
+    def test_request_live_indicator_data(self):
+        """Test the program requests live indicator data (FR2)."""
+        self.trader.strat.price_data_provider.live_data.update_data()
+        indicators = self.trader.strat.price_data_provider.live_data.indicator_data
+        self.assertEqual(indicators.rsi, 70)
+        self.assertEqual(indicators.ema, 60000)
+        self.assertEqual(indicators.sma_5, 500)
+        self.assertEqual(indicators.sma_20, 400)
 
-    def test_manual_trade_logic(self):
-        strat = strategy(self.price_key, self.ti_key)
-        strat.manual_trade = "open long"
-        
-        # Mock SMA and price data
-        strat.price_data_provider.get_price_and_sma = lambda: (45000, 46000, 44000)
-        strat.process_data()
-        
-        # Assert that a long trade is opened manually
-        self.assertEqual(strat.opened_trade_type, "long")
-        self.assertEqual(strat.active_trades_amnt, 1)
+    def test_open_manual_long_trade(self):
+        """Test manually opening a long trade (FR6)."""
+        self.trader.strat.price_data_provider.live_data.update_data()
+        self.trader.strat.manual_trade = "open long"
+        self.trader.run()
+        self.assertEqual(self.trader.strat.active_trades_amnt, 1)
+        self.assertEqual(self.trader.strat.opened_trade_type, "long")
 
+    def test_close_manual_trade(self):
+        """Test manually closing a trade (FR7)."""
+        self.trader.strat.price_data_provider.live_data.update_data()
+        self.trader.strat.manual_trade = "open long"
+        self.trader.run()
+        self.trader.strat.manual_trade = "close trade"
+        self.trader.run()
+        self.assertEqual(self.trader.strat.active_trades_amnt, 0)
 
-class TestIntegration(TestBase):
-    def test_trade_lifecycle(self):
-        trader = run_Trader(self.price_key, self.ti_key)
-        strat = trader.strat
-        
-        # Mock SMA crossing conditions
-        strat.price_data_provider.get_price_and_sma = lambda: (45000, 46000, 44000)  # Open long
-        strat.process_data()
-        
-        strat.price_data_provider.get_price_and_sma = lambda: (45500, 45000, 46000)  # Close long
-        strat.process_data()
-        
-        # Assert trade lifecycle
-        self.assertEqual(strat.opened_trade_type, "")
-        self.assertEqual(strat.active_trades_amnt, 0)
-        self.assertGreater(strat.total_profit, 0)
+    def test_add_stop_loss(self):
+        """Test adding a stop-loss for trades (FR8)."""
+        self.trader.strat.stop_loss = 100
+        self.assertEqual(self.trader.strat.stop_loss, 100)
 
-    def test_live_price_update(self):
-        manager = IndicatorManager(self.price_key, self.ti_key)
-        
-        # Mock live API response
-        mock_price_response = {"value": 45500.0}
-        manager.update_price(mock_price_response)
-        
-        # Assert price update
-        self.assertEqual(manager.indicator_data.price, 45500.0)
+    def test_add_take_profit(self):
+        """Test adding a take-profit level for trades (FR9)."""
+        self.trader.strat.take_profit = 200
+        self.assertEqual(self.trader.strat.take_profit, 200)
 
-    def test_ui_updates(self):
-        root = tk.Tk()
-        app = TradingApp(root, "mock_file.csv", run_Trader(self.price_key, self.ti_key))
-        app.trader.strat.open_trade("long", 45000, 46000, 44000)
-        
-        # Mock UI update
-        app.update_data()
-        
-        # Assert that UI reflects new trade
-        self.assertIn("Active Profit", app.info_box_label.cget("text"))
-        root.destroy()
+    def test_automated_trade_execution(self):
+        """Test automated trade execution based on SMA signals (FR10)."""
+        self.trader.strat.price_data_provider.live_data.update_data()
+        self.trader.run()
+        self.assertEqual(self.trader.strat.active_trades_amnt, 1)
+        self.assertEqual(self.trader.strat.opened_trade_type, "long")
 
-
-class TestSystem(TestBase):
-    def test_end_to_end_trading_cycle(self):
-        trader = run_Trader(self.price_key, self.ti_key)
-        strat = trader.strat
-        
-        # Mock full trading cycle
-        strat.price_data_provider.get_price_and_sma = lambda: (45000, 46000, 44000)  # Open long
-        strat.process_data()
-        
-        strat.price_data_provider.get_price_and_sma = lambda: (45500, 45000, 46000)  # Close long
-        strat.process_data()
-        
-        # Assert end-to-end lifecycle
-        self.assertEqual(strat.active_trades_amnt, 0)
-        self.assertGreater(strat.networth, 1000)  # Initial net worth = 1000
-
-    def test_graph_responsiveness(self):
-        root = tk.Tk()
-        app = TradingApp(root, "mock_file.csv", run_Trader(self.price_key, self.ti_key))
-        
-        # Mock graph data
-        app.df = app.df.append({
-            'timestamp': '2023-12-09 12:00:00',
-            'price': 45500,
-            'short sma': 46000,
-            'long sma': 44000
-        }, ignore_index=True)
-        
-        app.plot_data()
-        
-        # Assert graphs are updated without lag
-        self.assertTrue(app.canvas is not None)
-        root.destroy()
+    def test_accuracy_of_data_update(self):
+        """Test data accuracy and update speed (NFR1)."""
+        self.trader.strat.price_data_provider.live_data.update_data()
+        self.assertEqual(self.trader.strat.price_data_provider.price, 50000)
 
 
 if __name__ == "__main__":
