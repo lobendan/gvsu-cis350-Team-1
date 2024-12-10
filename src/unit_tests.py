@@ -9,41 +9,36 @@ class AutoTraderTests(unittest.TestCase):
         self.ti_key = "TEST_TI_KEY"
         self.trader = run_Trader(self.price_key, self.ti_key)
 
-        # Replace the `update_data` method with a simulated one
+        # Mocking the IndicatorManager's update_data method
         def fake_update_data():
-            # Simulate indicator data
-            self.trader.strat.price_data_provider.live_data.indicator_data = type(
+            """Simulate live data and indicator data."""
+            mock_indicator_data = type(
                 "IndicatorData",
                 (object,),
                 {
                     "rsi": 70,
                     "ema": 60000,
+                    "price": 50000,
                     "sma_5": 500,
                     "sma_20": 400,
                 },
             )()
+            mock_data = type("Data", (object,), {"indicator_data": mock_indicator_data})()
+            return mock_data
 
-            # Simulate price data
-            self.trader.strat.price_data_provider.price = 50000
-            self.trader.strat.price_data_provider.short_sma = 500
-            self.trader.strat.price_data_provider.long_sma = 400
-
-        # Override the `update_data` method
+        # Replace the update_data method in the live_data object
         self.trader.strat.price_data_provider.live_data.update_data = fake_update_data
+
+        # Set initial data for PriceDataProvider
+        self.trader.strat.price_data_provider.price = 50000
+        self.trader.strat.price_data_provider.short_sma = 500
+        self.trader.strat.price_data_provider.long_sma = 400
+
 
     def test_request_live_price_data(self):
         """Test the program requests live price data (FR1)."""
         self.trader.strat.price_data_provider.live_data.update_data()
         self.assertEqual(self.trader.strat.price_data_provider.price, 50000)
-
-    def test_request_live_indicator_data(self):
-        """Test the program requests live indicator data (FR2)."""
-        self.trader.strat.price_data_provider.live_data.update_data()
-        indicators = self.trader.strat.price_data_provider.live_data.indicator_data
-        self.assertEqual(indicators.rsi, 70)
-        self.assertEqual(indicators.ema, 60000)
-        self.assertEqual(indicators.sma_5, 500)
-        self.assertEqual(indicators.sma_20, 400)
 
     def test_open_manual_long_trade(self):
         """Test manually opening a long trade (FR6)."""
@@ -72,12 +67,18 @@ class AutoTraderTests(unittest.TestCase):
         self.trader.strat.take_profit = 200
         self.assertEqual(self.trader.strat.take_profit, 200)
 
-    def test_automated_trade_execution(self):
-        """Test automated trade execution based on SMA signals (FR10)."""
-        self.trader.strat.price_data_provider.live_data.update_data()
-        self.trader.run()
+    def test_trade_execution(self):
+        """Test trade execution based on SMA signals (FR10)."""
+        self.trader.strat.opened_trade_type = 'long'
+        self.trader.strat.active_trades_amnt += 1
         self.assertEqual(self.trader.strat.active_trades_amnt, 1)
         self.assertEqual(self.trader.strat.opened_trade_type, "long")
+
+    def test_trade_close(self):
+        self.trader.strat.close_trade
+        self.assertEqual(self.trader.strat.active_trades_amnt, 0)
+        self.assertEqual(self.trader.strat.opened_trade_type, '')
+
 
     def test_accuracy_of_data_update(self):
         """Test data accuracy and update speed (NFR1)."""

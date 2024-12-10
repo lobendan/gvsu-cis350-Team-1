@@ -76,6 +76,30 @@ linked to> |
 ## System tests
 (copy/paste the above table a minimum of 3 times)
 
+
+## Unit Tests
+| ID  | Description                              | Steps                                             | Input Values                | Expected Output                                       | Actual Output | Pass/Fail | Requirement Link |
+| :--:| :--------------------------------------:| :-----------------------------------------------:| :-------------------------:| :---------------------------------------------------:| :-----------: | :-------: | :---------------:|
+| UT1 | Test live price data fetching           | Trigger `update_data` and assert `price` update  | Mock price: 50000          | `price` set to 50000                                 | TBD           | TBD       | FR1              |
+| UT2 | Add stop-loss for trades                | Assign `stop_loss = 50` and verify update        | Stop-loss: 50              | `stop_loss` set to 50                                | TBD           | TBD       | FR8              |
+| UT3 | Add take-profit for trades              | Assign `take_profit = 200` and verify update     | Take-profit: 200           | `take_profit` set to 200                             | TBD           | TBD       | FR9              |
+| UT4 | Test data accuracy in updates           | Trigger live data update and check attributes    | Mock data update           | Accurate and timely data update                     | TBD           | TBD       | NFR1             |
+
+## Integration Tests
+| ID  | Description                                   | Steps                                                 | Input Values                | Expected Output                                       | Actual Output | Pass/Fail | Requirement Link |
+| :--:| :-------------------------------------------:| :---------------------------------------------------:| :-------------------------:| :---------------------------------------------------:| :-----------: | :-------: | :---------------:|
+| IT1 | Integration of `run_Trader` and `PriceDataProvider` | Trigger data update, validate data flow between modules | Mock price: 50000          | `PriceDataProvider.price` updated                   | TBD           | TBD       | FR1, FR2         |
+| IT2 | Validate UI updates for manual trading       | Open manual trade via UI, check updates in UI and CSV | Mock input: "open long"    | UI reflects trade; CSV logs the trade action        | TBD           | TBD       | FR6, FR7         |
+| IT3 | Test trade execution and graph update        | Trigger SMA signal, validate CSV and graph updates   | Mock SMA: short > long     | Trade logged; graph updated correctly               | TBD           | TBD       | FR5, FR10        |
+
+## System Tests 
+| ID  | Description                                  | Steps                                                 | Input Values                | Expected Output                                       | Actual Output | Pass/Fail | Requirement Link |
+| :--:| :------------------------------------------:| :---------------------------------------------------:| :-------------------------:| :---------------------------------------------------:| :-----------: | :-------: | :---------------:|
+| ST1 | End-to-end automated trading loop test      | Launch app, verify automated trade execution         | Mock SMA, price data       | Trades executed and logged; graphs updated          | TBD           | TBD       | FR10, FR13        |
+| ST2 | Performance test for data updates           | Monitor live data updates, validate timing           | Mock API responses         | Updates within 1 second                             | TBD           | TBD       | NFR1, NFR2        |
+| ST3 | Verify system startup initialization        | Launch app, validate UI/backend initialization       | Valid API keys             | Successful system startup                           | TBD           | TBD       | NFR8              |
+
+
 # Software Artifacts
 <Key deliverables and components produced and used throughout the development of the project>
 
